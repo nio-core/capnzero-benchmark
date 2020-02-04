@@ -1,21 +1,18 @@
-#include "capnzero-base-msgs/string.capnp.h"
 #include <capnzero/Common.h>
-#include <capnzero/Subscriber.h>
 
-#include <capnp/common.h>
-#include <capnp/message.h>
-#include <capnp/serialize-packed.h>
-#include <kj/array.h>
+// import flatbuffers stuff
+#include <capnzero/SubscriberFlatbuffers.h>
+#include "capnzero-base-msgs/string_generated.h"
 
 #include <signal.h>
 #include <thread>
 
 //#define DEBUG_SENDER
 
-void callback(::capnp::FlatArrayMessageReader& reader)
+void callback(std::string string)
 {
     std::cout << "Called callback..." << std::endl;
-    std::cout << reader.getRoot<capnzero::String>().toString().flatten().cStr() << std::endl;
+    std::cout << string << std::endl;
 }
 
 static bool interrupted = false;
@@ -34,21 +31,11 @@ static void s_catch_signals(void)
     sigaction(SIGTERM, &action, NULL);
 }
 
-int main(int argc, char** argv)
-{
-    s_catch_signals();
 
-    if (argc <= 1) {
-        std::cerr << "Synopsis: rosrun capnzero echo \"Topic that should be listened to!\"" << std::endl;
-        return -1;
-    }
-
-    for (size_t i = 0; i < argc; i++) {
-        std::cout << "Param " << i << ": '" << argv[i] << "'" << std::endl;
-    }
-
+static void initializeSubscriberFlatbuffers(char** argv) {
+    std::cout << "Selected encoding: Flatbuffers" << std::endl;
     void* ctx = zmq_ctx_new();
-    capnzero::Subscriber* sub = new capnzero::Subscriber(ctx, capnzero::Protocol::UDP);
+    capnzero::SubscriberFlatbuffers* sub = new capnzero::SubscriberFlatbuffers(ctx, capnzero::Protocol::UDP);
     sub->setTopic(argv[1]);
 
 //    sub->addAddress("@capnzero.ipc");
@@ -63,6 +50,29 @@ int main(int argc, char** argv)
     delete sub;
 
     zmq_ctx_term(ctx);
+}
+
+int main(int argc, char** argv)
+{
+    s_catch_signals();
+
+    if (argc <= 2) {
+        std::cerr << "Synopsis: rosrun capnzero echo \"Topic that should be listened to!\" encodingID" << std::endl;
+        std::cerr << "Encodings:" << std::endl;
+        std::cerr << "Flatbuffers: 0" << std::endl;
+        return -1;
+    }
+
+    for (size_t i = 0; i < argc; i++) {
+        std::cout << "Param " << i << ": '" << argv[i] << "'" << std::endl;
+    }
+
+    int encoding = std::stoi(argv[2]);
+    if (encoding == 0) {
+        initializeSubscriberFlatbuffers(argv);
+    } else {
+        std::cerr << encoding << " is not a correct encodingID" << std::endl;
+    }
 
     return 0;
 }

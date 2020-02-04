@@ -2,8 +2,6 @@
 
 #include "capnzero/Common.h"
 
-#include <capnp/serialize-packed.h>
-
 #include <zmq.h>
 
 #include <string>
@@ -13,19 +11,21 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include "capnzero-base-msgs/string_generated.h"
+#include <iostream>
 
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
 {
-class Subscriber
+class SubscriberFlatbuffers
 {
 public:
-    typedef std::function<void(::capnp::FlatArrayMessageReader&)> callbackFunction;
+    typedef std::function<void(std::string string)> callbackFunction;
     static const int WORD_SIZE;
 
-    Subscriber(void* context, Protocol protocol);
-    virtual ~Subscriber();
+    SubscriberFlatbuffers(void* context, Protocol protocol);
+    virtual ~SubscriberFlatbuffers();
 
     /**
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function and object.
@@ -34,12 +34,12 @@ public:
      * @param callbackObject
      */
     template <class CallbackObjType>
-    void subscribe(void (CallbackObjType::*callbackFunction)(::capnp::FlatArrayMessageReader&), CallbackObjType* callbackObject) {
+    void subscribe(void (CallbackObjType::*callbackFunction)(std::string string), CallbackObjType* callbackObject) {
         using std::placeholders::_1;
         this->callbackFunction_ = std::bind(callbackFunction, callbackObject, _1);
         if (!running) {
             this->running = true;
-            this->runThread = new std::thread(&Subscriber::receive, this);
+            this->runThread = new std::thread(&SubscriberFlatbuffers::receive, this);
         }
     }
 
@@ -47,7 +47,7 @@ public:
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function.
      * @param callbackFunction
      */
-    void subscribe(void (*callbackFunction)(::capnp::FlatArrayMessageReader&));
+    void subscribe(void (*callbackFunction)(std::string string));
 
     /**
      * Sets the topic to receive from.

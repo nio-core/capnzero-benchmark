@@ -1,11 +1,11 @@
-#include "capnzero/Subscriber.h"
+#include "capnzero/SubscriberFlatbuffers.h"
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
 {
-const int Subscriber::WORD_SIZE = sizeof(capnp::word);
+//const int Subscriber::WORD_SIZE = sizeof(capnp::word);
 
-Subscriber::Subscriber(void* context, Protocol protocol)
+SubscriberFlatbuffers::SubscriberFlatbuffers(void* context, Protocol protocol)
         : socket(nullptr)
         , rcvTimeout(500)
         , topic("???") // this filter topic will hopefully never be used
@@ -32,7 +32,7 @@ Subscriber::Subscriber(void* context, Protocol protocol)
     check(zmq_setsockopt(this->socket, ZMQ_RCVTIMEO, &rcvTimeout, sizeof(rcvTimeout)), "zmq_setsockopt");
 }
 
-Subscriber::~Subscriber()
+SubscriberFlatbuffers::~SubscriberFlatbuffers()
 {
     this->running = false;
     this->runThread->join();
@@ -40,7 +40,7 @@ Subscriber::~Subscriber()
     check(zmq_close(this->socket), "zmq_close");
 }
 
-void Subscriber::setTopic(std::string topic)
+void SubscriberFlatbuffers::setTopic(std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Subscriber::setTopic: The given topic is too long!");
 
@@ -67,7 +67,7 @@ void Subscriber::setTopic(std::string topic)
     }
 }
 
-void Subscriber::addAddress(std::string address)
+void SubscriberFlatbuffers::addAddress(std::string address)
 {
     switch (protocol) {
     case Protocol::UDP:
@@ -85,20 +85,20 @@ void Subscriber::addAddress(std::string address)
     }
 }
 
-void Subscriber::subscribe(void (*callbackFunction)(::capnp::FlatArrayMessageReader&)) {
+void SubscriberFlatbuffers::subscribe(void (*callbackFunction)(std::string string)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
-        this->runThread = new std::thread(&Subscriber::receive, this);
+        this->runThread = new std::thread(&SubscriberFlatbuffers::receive, this);
     }
 }
 
-void Subscriber::setReceiveQueueSize(int queueSize)
+void SubscriberFlatbuffers::setReceiveQueueSize(int queueSize)
 {
     check( zmq_setsockopt(this->socket, ZMQ_RCVHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-void Subscriber::receive()
+void SubscriberFlatbuffers::receive()
 {
     while (this->running) {
 
@@ -130,20 +130,26 @@ void Subscriber::receive()
 #endif
 
         // Received message must contain an integral number of words.
-        if (zmq_msg_size(&msg) % Subscriber::WORD_SIZE != 0) {
-            std::cerr << "Subscriber::receive(): Message received with a size of non-integral number of words!" << std::endl;
-            check(zmq_msg_close(&msg), "zmq_msg_close");
-            continue;
-        }
+//        if (zmq_msg_size(&msg) % Subscriber::WORD_SIZE != 0) {
+//            std::cerr << "Subscriber::receive(): Message received with a size of non-integral number of words!" << std::endl;
+//            check(zmq_msg_close(&msg), "zmq_msg_close");
+//            continue;
+//        }
 
         // Check whether message is memory aligned
 //        assert(reinterpret_cast<uintptr_t>(zmq_msg_data(&msg)) % Subscriber::WORD_SIZE == 0);
 
         // Call the callback with Cap'n Proto message
-        int msgSize = zmq_msg_size(&msg);
-        auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
-        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
-        (this->callbackFunction_)(msgReader);
+//        int msgSize = zmq_msg_size(&msg);
+//        auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
+//        flatbuffers::FlatBufferBuilder fbb;
+//        TextBuilder builder(fbb);
+//        auto text = GetText(zmq_msg_data(&msg));
+//        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
+//        (this->callbackFunction_)(msg);
+        auto textStruct = GetText(zmq_msg_data(&msg));
+        auto text = textStruct->text()->c_str();
+        (this->callbackFunction_)(text);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }

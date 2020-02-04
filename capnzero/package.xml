@@ -2,9 +2,9 @@
 <package format="2">
   <name>capnzero</name>
   <version>0.0.0</version>
-  <description>The capnzero package</description>
+  <description>capnzero</description>
 
-  <maintainer email="opfer@vs.uni-kassel.de">Stephan Opfer</maintainer>
+  <maintainer email="bjoerninorek@gmail.com">Björn-André Schröder</maintainer>
 
   <license>MIT</license>
 

@@ -10,63 +10,90 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake CACHE INTERNAL "" FORCE)
 find_package(Threads)
 find_package(ZeroMQ REQUIRED)
 find_package(CapnProto REQUIRED)
+find_package(FlatBuffers REQUIRED)
 
 # copying the variables makes it compatible for catkin to transitive forward the CapnProto libraries and include dirs
 set(CapnProto_LIBRARIES ${CAPNP_LIBRARIES})
 set(CapnProto_INCLUDE_DIRS ${CAPNP_INCLUDE_DIRS})
+set(FlatBuffers_INCLUDE_DIRS ${FLATBUFFERS_INCLUDE_DIR})
+
+############# hilft nicht bei -lflatbuffers ###############
+set(FlatBuffers_Library_SRCS
+        include/flatbuffers/base.h
+        include/flatbuffers/flatbuffers.h
+        include/flatbuffers/hash.h
+        include/flatbuffers/idl.h
+        include/flatbuffers/util.h
+        include/flatbuffers/reflection.h
+        include/flatbuffers/reflection_generated.h
+        include/flatbuffers/stl_emulation.h
+        include/flatbuffers/flexbuffers.h
+        include/flatbuffers/registry.h
+        include/flatbuffers/minireflect.h
+        )
+
+set(FlatBuffers_LIBRARIES ${FlatBuffers_library_SRCS})
+
+###########################################################
+
+add_subdirectory(flatbuffers)
 
 find_package(catkin REQUIRED)
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES capnzero capnzero-base-msgs
-  DEPENDS ZeroMQ CapnProto
-  CFG_EXTRAS CapnZero-extras.cmake
+        INCLUDE_DIRS include #flatbuffers
+        LIBRARIES capnzero capnzero-base-msgs #flatbuffers
+        DEPENDS ZeroMQ CapnProto #FlatBuffers
+        CFG_EXTRAS CapnZero-extras.cmake
 )
 
 include_directories(
-  include
-  ${ZeroMQ_INCLUDE_DIRS}
-  ${CAPNP_INCLUDE_DIRS}
+        include
+        ${ZeroMQ_INCLUDE_DIRS}
+        ${CAPNP_INCLUDE_DIRS}
+        #flatbuffers
 )
 
 ############ CapnZero Communication Library
 
 add_library(${PROJECT_NAME}
-  src/Publisher.cpp
-  src/Subscriber.cpp
-)
+        src/PublisherFlatbuffers.cpp
+        src/SubscriberFlatbuffers.cpp
+        )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC
-  ${ZeroMQ_LIBRARIES}
-  ${CAPNP_LIBRARIES}
-)
+        PUBLIC
+        ${ZeroMQ_LIBRARIES}
+        ${CAPNP_LIBRARIES}
+        #flatbuffers
+        )
 
 ############# SENDER-CONSOLE-APP
 
 add_executable(pub
-  src/pub.cpp
-)
+        src/pub.cpp
+        )
 
 target_link_libraries(pub
-  ${PROJECT_NAME}
-  capnzero-base-msgs
-  ${CMAKE_THREAD_LIBS_INIT}
-)
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        #flatbuffers
+        )
 
 ############# RECEIVER-CONSOLE-APP
 
 add_executable(echo
-  src/echo.cpp
-)
+        src/echo.cpp
+        )
 
 target_link_libraries(echo
-  ${PROJECT_NAME}
-  capnzero-base-msgs
-  ${CMAKE_THREAD_LIBS_INIT}
-)
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        #flatbuffers
+        )
 
 ############# BASIC MESSAGES
 
@@ -80,5 +107,24 @@ set(CAPNPC_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/capnzero-base-msgs")
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS ${capnp_messages})
 
 add_library(capnzero-base-msgs
-  ${CAPNP_SRCS}
-)
+        ${CAPNP_SRCS}
+        )
+
+## Autogenerate the c++ flatbuffers files
+add_dependencies( pub flatbuffers_message )
+get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
+target_include_directories(
+        pub
+        PRIVATE
+        ...
+        ${FLATBUFF_INCLUDE_DIR}
+        ...)
+
+add_dependencies( echo flatbuffers_message )
+get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
+target_include_directories(
+        echo
+        PRIVATE
+        ...
+        ${FLATBUFF_INCLUDE_DIR}
+        ...)

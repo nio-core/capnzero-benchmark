@@ -1,4 +1,4 @@
-#include "capnzero/Publisher.h"
+#include "capnzero/PublisherFlatbuffers.h"
 
 #include <assert.h>
 
@@ -12,7 +12,7 @@ namespace capnzero
  */
 static void cleanUpMsgData(void* data, void* hint);
 
-Publisher::Publisher(void* context, Protocol protocol)
+PublisherFlatbuffers::PublisherFlatbuffers(void* context, Protocol protocol)
         : socket(nullptr)
         , protocol(protocol)
         , context(context)
@@ -33,18 +33,18 @@ Publisher::Publisher(void* context, Protocol protocol)
     }
 }
 
-Publisher::~Publisher()
+PublisherFlatbuffers::~PublisherFlatbuffers()
 {
     check(zmq_close(this->socket), "zmq_close");
 }
 
-void Publisher::setDefaultTopic(std::string defaultTopic)
+void PublisherFlatbuffers::setDefaultTopic(std::string defaultTopic)
 {
     assert(defaultTopic.length() < MAX_TOPIC_LENGTH && "Publisher::setTopic: The given default topic is too long!");
     this->defaultTopic = defaultTopic;
 }
 
-void Publisher::addAddress(std::string address)
+void PublisherFlatbuffers::addAddress(std::string address)
 {
     switch (this->protocol) {
     case Protocol::UDP:
@@ -62,12 +62,12 @@ void Publisher::addAddress(std::string address)
     }
 }
 
-void Publisher::setSendQueueSize(int queueSize)
+void PublisherFlatbuffers::setSendQueueSize(int queueSize)
 {
     check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-int Publisher::send(::capnp::MallocMessageBuilder& msgBuilder, std::string topic)
+int PublisherFlatbuffers::send(flatbuffers::FlatBufferBuilder& msgBuilder, std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Publisher::send: The given topic is too long!");
 
@@ -75,9 +75,16 @@ int Publisher::send(::capnp::MallocMessageBuilder& msgBuilder, std::string topic
     zmq_msg_t msg;
     int sumBytesSend = 0;
 
-    kj::Array<capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
-    kj::Array<capnp::word>* wordArrayPtr = new kj::Array<capnp::word>(kj::mv(wordArray)); // will be delete by zero-mq
-    check(zmq_msg_init_data(&msg, wordArrayPtr->begin(), wordArrayPtr->size() * sizeof(capnp::word), &cleanUpMsgData, wordArrayPtr), "zmq_msg_init_data");
+    //TODO: see whats implemented here, reimplement with flatbuffer
+    //msgBuilder is the message build beforehand
+    //transform message into flat array
+    //create üointer to wordarray
+    //check if
+
+//    kj::Array<capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
+//    kj::Array<capnp::word>* wordArrayPtr = new kj::Array<capnp::word>(kj::mv(wordArray)); // will be delete by zero-mq
+//    std::vector v =
+    check(zmq_msg_init_data(&msg, msgBuilder.GetBufferPointer(), msgBuilder.GetSize(), &cleanUpMsgData, msgBuilder.GetBufferPointer()), "zmq_msg_init_data");
 
     // Topic handling
     if (this->protocol == Protocol::UDP) {
@@ -98,13 +105,21 @@ int Publisher::send(::capnp::MallocMessageBuilder& msgBuilder, std::string topic
     return sumBytesSend;
 }
 
-int Publisher::send(::capnp::MallocMessageBuilder& msgBuilder)
+int PublisherFlatbuffers::send(flatbuffers::FlatBufferBuilder& msgBuilder)
 {
     return this->send(msgBuilder, this->defaultTopic);
 }
 
+flatbuffers::FlatBufferBuilder PublisherFlatbuffers::createMessage(std::string message) {
+    flatbuffers::FlatBufferBuilder msgBuilder;
+    auto string = msgBuilder.CreateString(message);
+    auto text = CreateText(msgBuilder, string);
+    msgBuilder.Finish(text);
+    return msgBuilder;
+}
+
 static void cleanUpMsgData(void* data, void* hint)
 {
-    delete reinterpret_cast<kj::Array<capnp::word>*>(hint);
+//    delete reinterpret_cast<kj::Array<capnp::word>*>(hint);
 }
 } // namespace capnzero
