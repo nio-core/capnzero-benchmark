@@ -75,15 +75,6 @@ int PublisherFlatbuffers::send(flatbuffers::FlatBufferBuilder& msgBuilder, std::
     zmq_msg_t msg;
     int sumBytesSend = 0;
 
-    //TODO: see whats implemented here, reimplement with flatbuffer
-    //msgBuilder is the message build beforehand
-    //transform message into flat array
-    //create üointer to wordarray
-    //check if
-
-//    kj::Array<capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
-//    kj::Array<capnp::word>* wordArrayPtr = new kj::Array<capnp::word>(kj::mv(wordArray)); // will be delete by zero-mq
-//    std::vector v =
     check(zmq_msg_init_data(&msg, msgBuilder.GetBufferPointer(), msgBuilder.GetSize(), &cleanUpMsgData, msgBuilder.GetBufferPointer()), "zmq_msg_init_data");
 
     // Topic handling

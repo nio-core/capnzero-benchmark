@@ -17,25 +17,6 @@ set(CapnProto_LIBRARIES ${CAPNP_LIBRARIES})
 set(CapnProto_INCLUDE_DIRS ${CAPNP_INCLUDE_DIRS})
 set(FlatBuffers_INCLUDE_DIRS ${FLATBUFFERS_INCLUDE_DIR})
 
-############# hilft nicht bei -lflatbuffers ###############
-set(FlatBuffers_Library_SRCS
-        include/flatbuffers/base.h
-        include/flatbuffers/flatbuffers.h
-        include/flatbuffers/hash.h
-        include/flatbuffers/idl.h
-        include/flatbuffers/util.h
-        include/flatbuffers/reflection.h
-        include/flatbuffers/reflection_generated.h
-        include/flatbuffers/stl_emulation.h
-        include/flatbuffers/flexbuffers.h
-        include/flatbuffers/registry.h
-        include/flatbuffers/minireflect.h
-        )
-
-set(FlatBuffers_LIBRARIES ${FlatBuffers_library_SRCS})
-
-###########################################################
-
 add_subdirectory(flatbuffers)
 
 find_package(catkin REQUIRED)

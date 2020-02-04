@@ -3,7 +3,6 @@
 
 namespace capnzero
 {
-//const int Subscriber::WORD_SIZE = sizeof(capnp::word);
 
 SubscriberFlatbuffers::SubscriberFlatbuffers(void* context, Protocol protocol)
         : socket(nullptr)
@@ -129,24 +128,6 @@ void SubscriberFlatbuffers::receive()
         std::cout << std::endl;
 #endif
 
-        // Received message must contain an integral number of words.
-//        if (zmq_msg_size(&msg) % Subscriber::WORD_SIZE != 0) {
-//            std::cerr << "Subscriber::receive(): Message received with a size of non-integral number of words!" << std::endl;
-//            check(zmq_msg_close(&msg), "zmq_msg_close");
-//            continue;
-//        }
-
-        // Check whether message is memory aligned
-//        assert(reinterpret_cast<uintptr_t>(zmq_msg_data(&msg)) % Subscriber::WORD_SIZE == 0);
-
-        // Call the callback with Cap'n Proto message
-//        int msgSize = zmq_msg_size(&msg);
-//        auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
-//        flatbuffers::FlatBufferBuilder fbb;
-//        TextBuilder builder(fbb);
-//        auto text = GetText(zmq_msg_data(&msg));
-//        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
-//        (this->callbackFunction_)(msg);
         auto textStruct = GetText(zmq_msg_data(&msg));
         auto text = textStruct->text()->c_str();
         (this->callbackFunction_)(text);
