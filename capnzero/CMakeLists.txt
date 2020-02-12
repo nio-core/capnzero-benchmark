@@ -11,19 +11,27 @@ find_package(Threads)
 find_package(ZeroMQ REQUIRED)
 find_package(CapnProto REQUIRED)
 find_package(FlatBuffers REQUIRED)
+find_package(Protobuf REQUIRED)
 
 # copying the variables makes it compatible for catkin to transitive forward the CapnProto libraries and include dirs
 set(CapnProto_LIBRARIES ${CAPNP_LIBRARIES})
 set(CapnProto_INCLUDE_DIRS ${CAPNP_INCLUDE_DIRS})
 set(FlatBuffers_INCLUDE_DIRS ${FLATBUFFERS_INCLUDE_DIR})
 
+## Autogenerate the c++ protobuf files
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS msg/string.proto)
+
+# Print path to generated files
+message ("PROTO_SRCS = ${PROTO_SRCS}")
+message ("PROTO_HDRS = ca${PROTO_HDRS}")
+
 add_subdirectory(flatbuffers)
 
 find_package(catkin REQUIRED)
 catkin_package(
-        INCLUDE_DIRS include #flatbuffers
-        LIBRARIES capnzero capnzero-base-msgs #flatbuffers
-        DEPENDS ZeroMQ CapnProto #FlatBuffers
+        INCLUDE_DIRS include
+        LIBRARIES capnzero capnzero-base-msgs
+        DEPENDS ZeroMQ CapnProto
         CFG_EXTRAS CapnZero-extras.cmake
 )
 
@@ -31,14 +39,19 @@ include_directories(
         include
         ${ZeroMQ_INCLUDE_DIRS}
         ${CAPNP_INCLUDE_DIRS}
-        #flatbuffers
+        ${PROTOBUF_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 ############ CapnZero Communication Library
 
 add_library(${PROJECT_NAME}
+        ${PROTO_SRCS}
+        ${PROTO_HDRS}
         src/PublisherFlatbuffers.cpp
         src/SubscriberFlatbuffers.cpp
+        src/PublisherProtobuf.cpp
+        src/SubscriberProtobuf.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)
@@ -47,33 +60,35 @@ target_link_libraries(${PROJECT_NAME}
         PUBLIC
         ${ZeroMQ_LIBRARIES}
         ${CAPNP_LIBRARIES}
-        #flatbuffers
+        ${PROTOBUF_LIBRARIES}
         )
 
 ############# SENDER-CONSOLE-APP
 
 add_executable(pub
         src/pub.cpp
+        ${PROTO_SRCS}
+        ${PROTO_HDRS}
         )
 
 target_link_libraries(pub
         ${PROJECT_NAME}
         capnzero-base-msgs
         ${CMAKE_THREAD_LIBS_INIT}
-        #flatbuffers
         )
 
 ############# RECEIVER-CONSOLE-APP
 
 add_executable(echo
         src/echo.cpp
+        ${PROTO_SRCS}
+        ${PROTO_HDRS}
         )
 
 target_link_libraries(echo
         ${PROJECT_NAME}
         capnzero-base-msgs
         ${CMAKE_THREAD_LIBS_INIT}
-        #flatbuffers
         )
 
 ############# BASIC MESSAGES

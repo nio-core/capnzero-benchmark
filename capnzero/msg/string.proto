@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+package capnzero;
+
+message String{
+    required string string = 1;
+}
