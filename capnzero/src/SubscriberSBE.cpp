@@ -1,10 +1,10 @@
-#include "capnzero/SubscriberFlatbuffers.h"
+#include "capnzero/SubscriberSBE.h"
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
 {
 
-SubscriberFlatbuffers::SubscriberFlatbuffers(void* context, Protocol protocol)
+    SubscriberSBE::SubscriberSBE(void* context, Protocol protocol)
         : socket(nullptr)
         , rcvTimeout(500)
         , topic("???") // this filter topic will hopefully never be used
@@ -31,7 +31,7 @@ SubscriberFlatbuffers::SubscriberFlatbuffers(void* context, Protocol protocol)
     check(zmq_setsockopt(this->socket, ZMQ_RCVTIMEO, &rcvTimeout, sizeof(rcvTimeout)), "zmq_setsockopt");
 }
 
-SubscriberFlatbuffers::~SubscriberFlatbuffers()
+    SubscriberSBE::~SubscriberSBE()
 {
     this->running = false;
     this->runThread->join();
@@ -39,7 +39,7 @@ SubscriberFlatbuffers::~SubscriberFlatbuffers()
     check(zmq_close(this->socket), "zmq_close");
 }
 
-void SubscriberFlatbuffers::setTopic(std::string topic)
+void SubscriberSBE::setTopic(std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Subscriber::setTopic: The given topic is too long!");
 
@@ -66,7 +66,7 @@ void SubscriberFlatbuffers::setTopic(std::string topic)
     }
 }
 
-void SubscriberFlatbuffers::addAddress(std::string address)
+void SubscriberSBE::addAddress(std::string address)
 {
     switch (protocol) {
     case Protocol::UDP:
@@ -84,20 +84,20 @@ void SubscriberFlatbuffers::addAddress(std::string address)
     }
 }
 
-void SubscriberFlatbuffers::subscribe(void (*callbackFunction)(std::string string)) {
+void SubscriberSBE::subscribe(void (*callbackFunction)(std::string string)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
-        this->runThread = new std::thread(&SubscriberFlatbuffers::receive, this);
+        this->runThread = new std::thread(&SubscriberSBE::receive, this);
     }
 }
 
-void SubscriberFlatbuffers::setReceiveQueueSize(int queueSize)
+void SubscriberSBE::setReceiveQueueSize(int queueSize)
 {
     check( zmq_setsockopt(this->socket, ZMQ_RCVHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-void SubscriberFlatbuffers::receive()
+void SubscriberSBE::receive()
 {
     while (this->running) {
 
@@ -127,9 +127,16 @@ void SubscriberFlatbuffers::receive()
 #ifdef DEBUG_SUBSCRIBER
         std::cout << std::endl;
 #endif
-        auto textStruct = GetText(zmq_msg_data(&msg));
-        auto text = textStruct->text()->c_str();
-        (this->callbackFunction_)(text);
+        char* data = (char*) zmq_msg_data(&msg);
+        size_t bufferLength = zmq_msg_size(&msg);
+        MessageHeader hdr;
+        Message message;
+
+        message.wrapAndApplyHeader(data, 0, bufferLength);
+        auto string = message.messageString();
+
+
+        (this->callbackFunction_)(string);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }

@@ -55,6 +55,11 @@ public:
      */
     void setSendQueueSize(int queueSize);
 
+    /**
+     * Encodes a string to a FlatBufferBuilder containing the message.
+     * @param message
+     * @return FLatBufferBuilder object
+     */
     flatbuffers::FlatBufferBuilder createMessage(std::string message);
 
 protected:

@@ -52,6 +52,8 @@ add_library(${PROJECT_NAME}
         src/SubscriberFlatbuffers.cpp
         src/PublisherProtobuf.cpp
         src/SubscriberProtobuf.cpp
+        src/PublisherSBE.cpp
+        src/SubscriberSBE.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)

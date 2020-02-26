@@ -1,11 +1,12 @@
 #include <capnzero/Common.h>
 
-// import flatbuffers subscriber
-#include <capnzero/SubscriberFlatbuffers.h>
+//generated flatbuffers header
 #include "capnzero-base-msgs/string_generated.h"
 
-//import protobuf subscriber
+//import subscriber
+#include <capnzero/SubscriberFlatbuffers.h>
 #include <capnzero/SubscriberProtobuf.h>
+#include <capnzero/SubscriberSBE.h>
 
 #include <signal.h>
 #include <thread>
@@ -75,6 +76,26 @@ static void initializeSubscriberProtobuf(char** argv) {
     zmq_ctx_term(ctx);
 }
 
+static void initializeSubscriberSBE(char** argv) {
+    std::cout << "Selected encoding: SBE" << std::endl;
+    void* ctx = zmq_ctx_new();
+    auto sub = new capnzero::SubscriberSBE(ctx, capnzero::Protocol::UDP);
+    sub->setTopic(argv[1]);
+
+//    sub->addAddress("@capnzero.ipc");
+    sub->addAddress("224.0.0.2:5555");
+//    sub->addAddress("127.0.0.1:5555");
+
+    sub->subscribe(&callback);
+    while (!interrupted) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    delete sub;
+
+    zmq_ctx_term(ctx);
+}
+
 int main(int argc, char** argv)
 {
     s_catch_signals();
@@ -84,6 +105,7 @@ int main(int argc, char** argv)
         std::cerr << "Encodings:" << std::endl;
         std::cerr << "0: Flatbuffers" << std::endl;
         std::cerr << "1: Protobuf" << std::endl;
+        std::cerr << "2: SBE" << std::endl;
         return -1;
     }
 
@@ -99,6 +121,11 @@ int main(int argc, char** argv)
 
     if (encoding == 1) {
         initializeSubscriberProtobuf(argv);
+        return 0;
+    }
+
+    if (encoding == 2) {
+        initializeSubscriberSBE(argv);
         return 0;
     }
 

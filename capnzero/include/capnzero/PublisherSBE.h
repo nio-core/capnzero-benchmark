@@ -2,13 +2,14 @@
 
 #include "Common.h"
 #include <zmq.h>
-#include "string.pb.h"
 
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "capnzero-base-msgs/Message.h"
 
 namespace capnzero
 {
@@ -19,11 +20,11 @@ namespace capnzero
  * the topic is set via multi-part messages (see http://wiki.zeromq.org/blog:zero-copy), in case of UDP via multicast
  * groups (see http://api.zeromq.org/master:zmq-socket#toc6 ZMQ_RADIO/ZMQ_DISH socket type).
  */
-class PublisherProtobuf
+class PublisherSBE
 {
 public:
-    PublisherProtobuf(void* context, Protocol protocol);
-    virtual ~PublisherProtobuf();
+    PublisherSBE(void* context, Protocol protocol);
+    virtual ~PublisherSBE();
 
     void setDefaultTopic(std::string defaultTopic);
 
@@ -35,18 +36,18 @@ public:
 
     /**
      * Sends the message to the default topic.
-     * @param Protobuf String reference containing the message.
+     * @param SBE Message object containing the message.
      * @return Number of bytes sent.
      */
-    int send(String& string);
+    int send(Message& string);
 
     /**
      * Sends the message to the given topic.
-     * @param Protobuf String reference containing the message.
+     * @param SBE Message object containing the message.
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(String& string, std::string topic);
+    int send(Message& string, std::string topic);
 
     /**
      * Sets the sender high water mark level of the underlying socket of
@@ -56,11 +57,11 @@ public:
     void setSendQueueSize(int queueSize);
 
     /**
-     * Encodes a string to a Protobuf String object.
+     * Encodes a string to an SBE Message object.
      * @param message
-     * @return Protobuf String object
+     * @return SBE Message object
      */
-    capnzero::String createMessage(std::string message);
+    Message createMessage(std::string message);
 
 protected:
     void* context;
