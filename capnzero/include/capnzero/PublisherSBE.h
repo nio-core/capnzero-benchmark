@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "capnzero-base-msgs/Message.h"
+#include "sbe/capnzero/Message.h"
 
 namespace capnzero
 {

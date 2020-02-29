@@ -13,7 +13,7 @@
 #include <vector>
 #include <iostream>
 
-#include "capnzero-base-msgs/Message.h"
+#include "sbe/capnzero/Message.h"
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero

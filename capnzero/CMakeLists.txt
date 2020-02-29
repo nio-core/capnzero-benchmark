@@ -26,6 +26,7 @@ message ("PROTO_SRCS = ${PROTO_SRCS}")
 message ("PROTO_HDRS = ca${PROTO_HDRS}")
 
 add_subdirectory(flatbuffers)
+add_subdirectory(sbe)
 
 find_package(catkin REQUIRED)
 catkin_package(
@@ -108,8 +109,8 @@ add_library(capnzero-base-msgs
         ${CAPNP_SRCS}
         )
 
-## Autogenerate the c++ flatbuffers files
-add_dependencies( pub flatbuffers_message )
+## Autogenerate the c++ flatbuffers and SBE files
+add_dependencies( pub flatbuffers_message generate_sbe_header)
 get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
 target_include_directories(
         pub
@@ -118,7 +119,7 @@ target_include_directories(
         ${FLATBUFF_INCLUDE_DIR}
         ...)
 
-add_dependencies( echo flatbuffers_message )
+add_dependencies( echo flatbuffers_message generate_sbe_header)
 get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
 target_include_directories(
         echo
@@ -126,3 +127,4 @@ target_include_directories(
         ...
         ${FLATBUFF_INCLUDE_DIR}
         ...)
+
