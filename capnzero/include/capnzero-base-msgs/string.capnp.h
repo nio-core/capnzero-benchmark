@@ -14,22 +14,22 @@
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA(8540e769171ac536);
+CAPNP_DECLARE_SCHEMA(b061afbaf2401309);
 
 }  // namespace schemas
 }  // namespace capnp
 
 namespace capnzero {
 
-struct String {
-  String() = delete;
+struct MessageCapnp {
+  MessageCapnp() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8540e769171ac536, 0, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(b061afbaf2401309, 1, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -38,9 +38,9 @@ struct String {
 
 // =======================================================================================
 
-class String::Reader {
+class MessageCapnp::Reader {
 public:
-  typedef String Reads;
+  typedef MessageCapnp Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -55,8 +55,16 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasString() const;
-  inline  ::capnp::Text::Reader getString() const;
+  inline bool hasId() const;
+  inline  ::capnp::Text::Reader getId() const;
+
+  inline bool hasMessageInfo() const;
+  inline  ::capnp::Text::Reader getMessageInfo() const;
+
+  inline  ::int64_t getStatus() const;
+
+  inline bool hasStates() const;
+  inline  ::capnp::List< ::int64_t>::Reader getStates() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -70,9 +78,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class String::Builder {
+class MessageCapnp::Builder {
 public:
-  typedef String Builds;
+  typedef MessageCapnp Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -86,12 +94,30 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasString();
-  inline  ::capnp::Text::Builder getString();
-  inline void setString( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initString(unsigned int size);
-  inline void adoptString(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownString();
+  inline bool hasId();
+  inline  ::capnp::Text::Builder getId();
+  inline void setId( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initId(unsigned int size);
+  inline void adoptId(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownId();
+
+  inline bool hasMessageInfo();
+  inline  ::capnp::Text::Builder getMessageInfo();
+  inline void setMessageInfo( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initMessageInfo(unsigned int size);
+  inline void adoptMessageInfo(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownMessageInfo();
+
+  inline  ::int64_t getStatus();
+  inline void setStatus( ::int64_t value);
+
+  inline bool hasStates();
+  inline  ::capnp::List< ::int64_t>::Builder getStates();
+  inline void setStates( ::capnp::List< ::int64_t>::Reader value);
+  inline void setStates(::kj::ArrayPtr<const  ::int64_t> value);
+  inline  ::capnp::List< ::int64_t>::Builder initStates(unsigned int size);
+  inline void adoptStates(::capnp::Orphan< ::capnp::List< ::int64_t>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::int64_t>> disownStates();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -103,9 +129,9 @@ private:
 };
 
 #if !CAPNP_LITE
-class String::Pipeline {
+class MessageCapnp::Pipeline {
 public:
-  typedef String Pipelines;
+  typedef MessageCapnp Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -121,38 +147,124 @@ private:
 
 // =======================================================================================
 
-inline bool String::Reader::hasString() const {
+inline bool MessageCapnp::Reader::hasId() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool String::Builder::hasString() {
+inline bool MessageCapnp::Builder::hasId() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader String::Reader::getString() const {
+inline  ::capnp::Text::Reader MessageCapnp::Reader::getId() const {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder String::Builder::getString() {
+inline  ::capnp::Text::Builder MessageCapnp::Builder::getId() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void String::Builder::setString( ::capnp::Text::Reader value) {
+inline void MessageCapnp::Builder::setId( ::capnp::Text::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder String::Builder::initString(unsigned int size) {
+inline  ::capnp::Text::Builder MessageCapnp::Builder::initId(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void String::Builder::adoptString(
+inline void MessageCapnp::Builder::adoptId(
     ::capnp::Orphan< ::capnp::Text>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> String::Builder::disownString() {
+inline ::capnp::Orphan< ::capnp::Text> MessageCapnp::Builder::disownId() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool MessageCapnp::Reader::hasMessageInfo() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool MessageCapnp::Builder::hasMessageInfo() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader MessageCapnp::Reader::getMessageInfo() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder MessageCapnp::Builder::getMessageInfo() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void MessageCapnp::Builder::setMessageInfo( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder MessageCapnp::Builder::initMessageInfo(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+}
+inline void MessageCapnp::Builder::adoptMessageInfo(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> MessageCapnp::Builder::disownMessageInfo() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline  ::int64_t MessageCapnp::Reader::getStatus() const {
+  return _reader.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::int64_t MessageCapnp::Builder::getStatus() {
+  return _builder.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void MessageCapnp::Builder::setStatus( ::int64_t value) {
+  _builder.setDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool MessageCapnp::Reader::hasStates() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool MessageCapnp::Builder::hasStates() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::int64_t>::Reader MessageCapnp::Reader::getStates() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::get(_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::int64_t>::Builder MessageCapnp::Builder::getStates() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void MessageCapnp::Builder::setStates( ::capnp::List< ::int64_t>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline void MessageCapnp::Builder::setStates(::kj::ArrayPtr<const  ::int64_t> value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::int64_t>::Builder MessageCapnp::Builder::initStates(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), size);
+}
+inline void MessageCapnp::Builder::adoptStates(
+    ::capnp::Orphan< ::capnp::List< ::int64_t>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::int64_t>> MessageCapnp::Builder::disownStates() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::int64_t>>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 
 }  // namespace

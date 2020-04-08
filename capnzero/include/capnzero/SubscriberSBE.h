@@ -13,7 +13,7 @@
 #include <vector>
 #include <iostream>
 
-#include "sbe/capnzero/Message.h"
+#include "sbe/MessageSBE.h"
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
@@ -21,7 +21,7 @@ namespace capnzero
 class SubscriberSBE
 {
 public:
-    typedef std::function<void(std::string string)> callbackFunction;
+    typedef std::function<void(sbe::MessageSBE* msg)> callbackFunction;
     static const int WORD_SIZE;
 
     SubscriberSBE(void* context, Protocol protocol);
@@ -34,7 +34,7 @@ public:
      * @param callbackObject
      */
     template <class CallbackObjType>
-    void subscribe(void (CallbackObjType::*callbackFunction)(std::string string), CallbackObjType* callbackObject) {
+    void subscribe(void (CallbackObjType::*callbackFunction)(sbe::MessageSBE* msg), CallbackObjType* callbackObject) {
         using std::placeholders::_1;
         this->callbackFunction_ = std::bind(callbackFunction, callbackObject, _1);
         if (!running) {
@@ -47,7 +47,7 @@ public:
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function.
      * @param callbackFunction
      */
-    void subscribe(void (*callbackFunction)(std::string string));
+    void subscribe(void (*callbackFunction)(sbe::MessageSBE* msg));
 
     /**
      * Sets the topic to receive from.

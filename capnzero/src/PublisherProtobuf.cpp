@@ -67,17 +67,17 @@ void PublisherProtobuf::setSendQueueSize(int queueSize)
     check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-int PublisherProtobuf::send(String& string, std::string topic)
+int PublisherProtobuf::send(MessageProtobuf& messageProtobuf, std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Publisher::send: The given topic is too long!");
 
     // setup zmq msg
     zmq_msg_t msg;
     int sumBytesSend = 0;
-    void* msg_ser = malloc(string.ByteSizeLong());
-    string.SerializeToArray(msg_ser, string.ByteSizeLong());
+    void* msg_ser = malloc(messageProtobuf.ByteSizeLong());
+    messageProtobuf.SerializeToArray(msg_ser, messageProtobuf.ByteSizeLong());
 
-    check(zmq_msg_init_data(&msg, msg_ser, string.ByteSizeLong(), &cleanUpMsgData, NULL), "zmq_msg_init_data");
+    check(zmq_msg_init_data(&msg, msg_ser, messageProtobuf.ByteSizeLong(), &cleanUpMsgData, NULL), "zmq_msg_init_data");
 
 
     // Topic handling
@@ -99,15 +99,9 @@ int PublisherProtobuf::send(String& string, std::string topic)
     return sumBytesSend;
 }
 
-int PublisherProtobuf::send(String& string)
+int PublisherProtobuf::send(MessageProtobuf& msg)
 {
-    return this->send(string, this->defaultTopic);
-}
-
-capnzero::String PublisherProtobuf::createMessage(std::string message) {
-    String string;
-    string.set_string(message);
-    return string;
+    return this->send(msg, this->defaultTopic);
 }
 
 static void cleanUpMsgData(void* data, void* hint)

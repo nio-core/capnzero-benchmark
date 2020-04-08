@@ -2,7 +2,7 @@
 
 #include "Common.h"
 #include <zmq.h>
-#include "string.pb.h"
+#include "capnzero-base-msgs/string.pb.h"
 
 #include <iomanip>
 #include <iostream>
@@ -38,7 +38,7 @@ public:
      * @param Protobuf String reference containing the message.
      * @return Number of bytes sent.
      */
-    int send(String& string);
+    int send(MessageProtobuf& msg);
 
     /**
      * Sends the message to the given topic.
@@ -46,7 +46,7 @@ public:
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(String& string, std::string topic);
+    int send(MessageProtobuf& msg, std::string topic);
 
     /**
      * Sets the sender high water mark level of the underlying socket of
@@ -54,13 +54,6 @@ public:
      * @param queueSize
      */
     void setSendQueueSize(int queueSize);
-
-    /**
-     * Encodes a string to a Protobuf String object.
-     * @param message
-     * @return Protobuf String object
-     */
-    capnzero::String createMessage(std::string message);
 
 protected:
     void* context;

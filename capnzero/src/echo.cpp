@@ -7,16 +7,73 @@
 #include <capnzero/SubscriberFlatbuffers.h>
 #include <capnzero/SubscriberProtobuf.h>
 #include <capnzero/SubscriberSBE.h>
+#include <capnzero/SubscriberCapnProto.h>
 
 #include <signal.h>
 #include <thread>
 
 //#define DEBUG_SENDER
 
-void callback(std::string string)
+void callbackFlatbuffers(const capnzero::MessageFlatbuffers& msg)
+{
+    auto id = msg.id()->c_str();
+    long status = msg.status();
+    auto states = msg.states();
+    auto messageInfo = msg.messageInfo()->c_str();
+
+    std::cout << "Called callback..." << std::endl;
+    std::cout << "Message type: Flatbuffers" << std::endl;
+    std::cout << "id: " << id << std::endl;
+    std::cout << "Status: " << status << std::endl;
+    std::cout << "States: " << std::endl;
+    for (auto it = states->begin(); it != states->end(); it++) {
+        std::cout << *it << std::endl;
+    }
+    std::cout << "Message Info: " << messageInfo << '\n' << std::endl;
+}
+
+void callbackProtobuf(capnzero::MessageProtobuf* msg)
+{
+    std::string id = msg->id();
+    long int status = msg->status();
+    google::protobuf::RepeatedField<long int> states = msg->states();
+    std::string messageInfo = msg->messageinfo();
+
+    std::cout << "Called callback..." << std::endl;
+    std::cout << "Message type: Protobuf" << std::endl;
+    std::cout << "id: " << id << std::endl;
+    std::cout << "Status: " << status << std::endl;
+    std::cout << "States: " << std::endl;
+
+    for (auto it = states.begin(); it != states.end(); it++) {
+        std::cout << *it << std::endl;
+    }
+    std::cout << "Message Info: " << messageInfo << '\n' << std::endl;
+}
+
+void callbackSBE(sbe::MessageSBE* msg)
+{
+//    msg.wrapAndApplyHeader(data, 0, bufferLength);
+    char id = msg->id();
+    long int status = msg->status();
+    sbe::MessageSBE::States states = msg->states();
+    std::string messageInfo = msg->messageInfo();
+
+    std::cout << "Called callback..." << std::endl;
+    std::cout << "Message type: SBE" << std::endl;
+    std::cout << "id: " << id << std::endl;
+    std::cout << "Status: " << status << std::endl;
+    std::cout << "States: " << std::endl;
+
+    std::cout << "Message Info: " << messageInfo << '\n' << std::endl;
+}
+
+void callbackCapnProto(std::string msg)
 {
     std::cout << "Called callback..." << std::endl;
-    std::cout << string << std::endl;
+    std::cout << "Message type: CapnProto" << std::endl;
+
+    std::cout << msg << std::endl;
 }
 
 static bool interrupted = false;
@@ -46,7 +103,7 @@ static void initializeSubscriberFlatbuffers(char** argv) {
     sub->addAddress("224.0.0.2:5555");
 //    sub->addAddress("127.0.0.1:5555");
 
-    sub->subscribe(&callback);
+    sub->subscribe(&callbackFlatbuffers);
     while (!interrupted) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -66,7 +123,7 @@ static void initializeSubscriberProtobuf(char** argv) {
     sub->addAddress("224.0.0.2:5555");
 //    sub->addAddress("127.0.0.1:5555");
 
-    sub->subscribe(&callback);
+    sub->subscribe(&callbackProtobuf);
     while (!interrupted) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -86,7 +143,27 @@ static void initializeSubscriberSBE(char** argv) {
     sub->addAddress("224.0.0.2:5555");
 //    sub->addAddress("127.0.0.1:5555");
 
-    sub->subscribe(&callback);
+    sub->subscribe(&callbackSBE);
+    while (!interrupted) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    delete sub;
+
+    zmq_ctx_term(ctx);
+}
+
+static void initializeSubscriberCapnProto(char** argv) {
+    std::cout << "Selected encoding: CapnProto" << std::endl;
+    void* ctx = zmq_ctx_new();
+    auto sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::UDP);
+    sub->setTopic(argv[1]);
+
+//    sub->addAddress("@capnzero.ipc");
+    sub->addAddress("224.0.0.2:5555");
+//    sub->addAddress("127.0.0.1:5555");
+
+    sub->subscribe(&callbackCapnProto);
     while (!interrupted) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -106,6 +183,7 @@ int main(int argc, char** argv)
         std::cerr << "0: Flatbuffers" << std::endl;
         std::cerr << "1: Protobuf" << std::endl;
         std::cerr << "2: SBE" << std::endl;
+        std::cerr << "3: CapnProto" << std::endl;
         return -1;
     }
 
@@ -127,6 +205,10 @@ int main(int argc, char** argv)
     if (encoding == 2) {
         initializeSubscriberSBE(argv);
         return 0;
+    }
+
+    if (encoding == 3) {
+        initializeSubscriberCapnProto(argv);
     }
 
     std::cerr << encoding << " is not a correct encodingID" << std::endl;

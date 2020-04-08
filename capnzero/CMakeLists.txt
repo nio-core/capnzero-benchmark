@@ -18,12 +18,15 @@ set(CapnProto_LIBRARIES ${CAPNP_LIBRARIES})
 set(CapnProto_INCLUDE_DIRS ${CAPNP_INCLUDE_DIRS})
 set(FlatBuffers_INCLUDE_DIRS ${FLATBUFFERS_INCLUDE_DIR})
 
-## Autogenerate the c++ protobuf files
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS msg/string.proto)
+# generate protobuf files
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateProtobuff.cmake)
+file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/msg/*.proto")
+my_protobuf_generate_cpp(include/capnzero-base-msgs PROTO_SRCS PROTO_HDRS ${ProtoFiles})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated_files)
 
 # Print path to generated files
 message ("PROTO_SRCS = ${PROTO_SRCS}")
-message ("PROTO_HDRS = ca${PROTO_HDRS}")
+message ("PROTO_HDRS = ${PROTO_HDRS}")
 
 add_subdirectory(flatbuffers)
 add_subdirectory(sbe)
@@ -41,7 +44,6 @@ include_directories(
         ${ZeroMQ_INCLUDE_DIRS}
         ${CAPNP_INCLUDE_DIRS}
         ${PROTOBUF_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 ############ CapnZero Communication Library
@@ -55,6 +57,12 @@ add_library(${PROJECT_NAME}
         src/SubscriberProtobuf.cpp
         src/PublisherSBE.cpp
         src/SubscriberSBE.cpp
+        src/PublisherCapnProto.cpp
+        src/SubscriberCapnProto.cpp
+        src/benchmark/BenchmarkFlatbuffers.cpp
+        src/benchmark/BenchmarkCapnProto.cpp
+        src/benchmark/BenchmarkProtobuf.cpp
+        src/benchmark/BenchmarkSBE.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)
@@ -94,6 +102,20 @@ target_link_libraries(echo
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
+############# BENCHMARK-CONSOLE-APP
+
+add_executable(benchmark
+        src/benchmark/benchmark.cpp
+        ${PROTO_SRCS}
+        ${PROTO_HDRS}
+        )
+
+target_link_libraries(benchmark
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        )
+
 ############# BASIC MESSAGES
 
 ## Autogenerate the c++ capnproto files
@@ -110,7 +132,7 @@ add_library(capnzero-base-msgs
         )
 
 ## Autogenerate the c++ flatbuffers and SBE files
-add_dependencies( pub flatbuffers_message generate_sbe_header)
+add_dependencies( pub flatbuffers_message)# generate_sbe_header
 get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
 target_include_directories(
         pub
@@ -119,10 +141,19 @@ target_include_directories(
         ${FLATBUFF_INCLUDE_DIR}
         ...)
 
-add_dependencies( echo flatbuffers_message generate_sbe_header)
+add_dependencies( echo flatbuffers_message)# generate_sbe_header
 get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
 target_include_directories(
         echo
+        PRIVATE
+        ...
+        ${FLATBUFF_INCLUDE_DIR}
+        ...)
+
+add_dependencies( benchmark flatbuffers_message generate_sbe_header)
+get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
+target_include_directories(
+        benchmark
         PRIVATE
         ...
         ${FLATBUFF_INCLUDE_DIR}

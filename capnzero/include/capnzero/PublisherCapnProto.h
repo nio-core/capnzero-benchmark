@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Common.h"
+#include <capnp/serialize-packed.h>
 #include <zmq.h>
-#include "capnzero-base-msgs/string_generated.h"
+
+#include "capnzero-base-msgs/string.capnp.h"
 
 #include <iomanip>
 #include <iostream>
@@ -19,11 +21,11 @@ namespace capnzero
  * the topic is set via multi-part messages (see http://wiki.zeromq.org/blog:zero-copy), in case of UDP via multicast
  * groups (see http://api.zeromq.org/master:zmq-socket#toc6 ZMQ_RADIO/ZMQ_DISH socket type).
  */
-class PublisherFlatbuffers
+class PublisherCapnProto
 {
 public:
-    PublisherFlatbuffers(void* context, Protocol protocol);
-    virtual ~PublisherFlatbuffers();
+    PublisherCapnProto(void* context, Protocol protocol);
+    virtual ~PublisherCapnProto();
 
     void setDefaultTopic(std::string defaultTopic);
 
@@ -38,7 +40,7 @@ public:
      * @param msgBuilder Builder containing the message.
      * @return Number of bytes sent.
      */
-    int send(flatbuffers::FlatBufferBuilder& msgBuilder);
+    int send(capnp::MallocMessageBuilder& msgBuilder);
 
     /**
      * Sends the message to the given topic.
@@ -46,14 +48,7 @@ public:
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(flatbuffers::FlatBufferBuilder& msgBuilder, std::string topic);
-
-    /**
-     * Sets the sender high water mark level of the underlying socket of
-     * this publisher.
-     * @param queueSize
-     */
-    void setSendQueueSize(int queueSize);
+    int send(capnp::MallocMessageBuilder& msgBuilder, std::string topic);
 
 protected:
     void* context;

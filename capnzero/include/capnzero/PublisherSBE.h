@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "sbe/capnzero/Message.h"
+#include "sbe/MessageSBE.h"
 
 namespace capnzero
 {
@@ -39,7 +39,7 @@ public:
      * @param SBE Message object containing the message.
      * @return Number of bytes sent.
      */
-    int send(Message& string);
+    int send(sbe::MessageSBE& string);
 
     /**
      * Sends the message to the given topic.
@@ -47,7 +47,7 @@ public:
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(Message& string, std::string topic);
+    int send(sbe::MessageSBE& string, std::string topic);
 
     /**
      * Sets the sender high water mark level of the underlying socket of
@@ -55,13 +55,6 @@ public:
      * @param queueSize
      */
     void setSendQueueSize(int queueSize);
-
-    /**
-     * Encodes a string to an SBE Message object.
-     * @param message
-     * @return SBE Message object
-     */
-    Message createMessage(std::string message);
 
 protected:
     void* context;

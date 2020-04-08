@@ -2,6 +2,9 @@
 
 #include "capnzero/Common.h"
 
+#include <capnp/serialize-packed.h>
+#include "capnzero-base-msgs/string.capnp.h"
+
 #include <zmq.h>
 
 #include <string>
@@ -11,21 +14,19 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
-#include "capnzero-base-msgs/string.pb.h"
-#include <iostream>
 
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
 {
-class SubscriberProtobuf
+class SubscriberCapnProto
 {
 public:
-    typedef std::function<void(MessageProtobuf* msg)> callbackFunction;
+    typedef std::function<void(std::string)> callbackFunction;
     static const int WORD_SIZE;
 
-    SubscriberProtobuf(void* context, Protocol protocol);
-    virtual ~SubscriberProtobuf();
+    SubscriberCapnProto(void* context, Protocol protocol);
+    virtual ~SubscriberCapnProto();
 
     /**
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function and object.
@@ -34,12 +35,12 @@ public:
      * @param callbackObject
      */
     template <class CallbackObjType>
-    void subscribe(void (CallbackObjType::*callbackFunction)(std::string string), CallbackObjType* callbackObject) {
+    void subscribe(void (CallbackObjType::*callbackFunction)(::capnp::FlatArrayMessageReader&), CallbackObjType* callbackObject) {
         using std::placeholders::_1;
         this->callbackFunction_ = std::bind(callbackFunction, callbackObject, _1);
         if (!running) {
             this->running = true;
-            this->runThread = new std::thread(&SubscriberProtobuf::receive, this);
+            this->runThread = new std::thread(&SubscriberCapnProto::receive, this);
         }
     }
 
@@ -47,26 +48,14 @@ public:
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function.
      * @param callbackFunction
      */
-    void subscribe(void (*callbackFunction)(MessageProtobuf* msg));
+    void subscribe(void (*callbackFunction)(std::string));
 
     /**
      * Sets the topic to receive from.
      * @param defaultTopic
      */
     void setTopic(std::string topic);
-
-    /**
-     * Connects or binds the socket of the subscriber to the given address.
-     * @param address The address.
-     */
     void addAddress(std::string address);
-
-    /**
-     * Sets the receiver high water mark level of the underlying socket of
-     * this subscriber.
-     * @param queueSize
-     */
-    void setReceiveQueueSize(int queueSize);
 
 protected:
     void* context;

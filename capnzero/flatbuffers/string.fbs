@@ -1,7 +1,10 @@
 namespace capnzero;
 
-table Text {
-	text:string;
+table MessageFlatbuffers {
+	id:string;
+	status:long;
+	states:[long];
+	messageInfo:string;
 }
 
-root_type Text;
+root_type MessageFlatbuffers;

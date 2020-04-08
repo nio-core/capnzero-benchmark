@@ -84,7 +84,7 @@ void SubscriberFlatbuffers::addAddress(std::string address)
     }
 }
 
-void SubscriberFlatbuffers::subscribe(void (*callbackFunction)(std::string string)) {
+void SubscriberFlatbuffers::subscribe(void (*callbackFunction)(const MessageFlatbuffers& msg)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
@@ -127,9 +127,12 @@ void SubscriberFlatbuffers::receive()
 #ifdef DEBUG_SUBSCRIBER
         std::cout << std::endl;
 #endif
-        auto textStruct = GetText(zmq_msg_data(&msg));
-        auto text = textStruct->text()->c_str();
-        (this->callbackFunction_)(text);
+        auto messageFlatbuffers = GetMessageFlatbuffers(zmq_msg_data(&msg));
+//        auto id = messageFlatbuffers->id()->c_str();
+//        long status = messageFlatbuffers->status();
+//        auto states = messageFlatbuffers->states();
+//        auto messageInfo = messageFlatbuffers->messageInfo()->c_str();
+        (this->callbackFunction_)(*messageFlatbuffers);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }

@@ -21,7 +21,7 @@ namespace capnzero
 class SubscriberFlatbuffers
 {
 public:
-    typedef std::function<void(std::string string)> callbackFunction;
+    typedef std::function<void(const MessageFlatbuffers& msg)> callbackFunction;
     static const int WORD_SIZE;
 
     SubscriberFlatbuffers(void* context, Protocol protocol);
@@ -34,7 +34,7 @@ public:
      * @param callbackObject
      */
     template <class CallbackObjType>
-    void subscribe(void (CallbackObjType::*callbackFunction)(std::string string), CallbackObjType* callbackObject) {
+    void subscribe(void (CallbackObjType::*callbackFunction)(const MessageFlatbuffers& msg), CallbackObjType* callbackObject) {
         using std::placeholders::_1;
         this->callbackFunction_ = std::bind(callbackFunction, callbackObject, _1);
         if (!running) {
@@ -47,7 +47,7 @@ public:
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function.
      * @param callbackFunction
      */
-    void subscribe(void (*callbackFunction)(std::string string));
+    void subscribe(void (*callbackFunction)(const MessageFlatbuffers& msg));
 
     /**
      * Sets the topic to receive from.

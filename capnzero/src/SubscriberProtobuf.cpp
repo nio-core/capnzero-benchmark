@@ -84,7 +84,7 @@ void SubscriberProtobuf::addAddress(std::string address)
     }
 }
 
-void SubscriberProtobuf::subscribe(void (*callbackFunction)(std::string string)) {
+void SubscriberProtobuf::subscribe(void (*callbackFunction)(MessageProtobuf* msg)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
@@ -130,9 +130,9 @@ void SubscriberProtobuf::receive()
 
         void* data = zmq_msg_data(&msg);
         size_t len = zmq_msg_size(&msg);
-        String string;
-        string.ParseFromArray(data, len);
-        (this->callbackFunction_)(string.string());
+        MessageProtobuf messageProtobuf;
+        messageProtobuf.ParseFromArray(data, len);
+        (this->callbackFunction_)(&messageProtobuf);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }

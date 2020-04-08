@@ -67,7 +67,7 @@ void PublisherSBE::setSendQueueSize(int queueSize)
     check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-int PublisherSBE::send(Message& message, std::string topic)
+int PublisherSBE::send(sbe::MessageSBE& message, std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Publisher::send: The given topic is too long!");
 
@@ -96,26 +96,9 @@ int PublisherSBE::send(Message& message, std::string topic)
     return sumBytesSend;
 }
 
-int PublisherSBE::send(Message& msg)
+int PublisherSBE::send(sbe::MessageSBE& msg)
 {
     return this->send(msg, this->defaultTopic);
-}
-
-Message PublisherSBE::createMessage(std::string message) {
-    Message msg;
-    MessageHeader hdr;
-    char buffer[2048];
-    int bufferLength = sizeof(buffer);
-
-    hdr.wrap(buffer, 0, 0, bufferLength)
-            .blockLength(Message::sbeBlockLength())
-            .templateId(Message::sbeTemplateId())
-            .schemaId(Message::sbeSchemaId())
-            .version(Message::sbeSchemaVersion());
-    msg.wrapForEncode(buffer, hdr.encodedLength(), bufferLength);
-    msg.putMessageString(message.c_str(), strlen(message.c_str()));
-
-    return msg;
 }
 
 static void cleanUpMsgData(void* data, void* hint)

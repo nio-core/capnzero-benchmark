@@ -101,13 +101,19 @@ int PublisherFlatbuffers::send(flatbuffers::FlatBufferBuilder& msgBuilder)
     return this->send(msgBuilder, this->defaultTopic);
 }
 
-flatbuffers::FlatBufferBuilder PublisherFlatbuffers::createMessage(std::string message) {
-    flatbuffers::FlatBufferBuilder msgBuilder;
-    auto string = msgBuilder.CreateString(message);
-    auto text = CreateText(msgBuilder, string);
-    msgBuilder.Finish(text);
-    return msgBuilder;
-}
+//flatbuffers::FlatBufferBuilder& PublisherFlatbuffers::createMessage(std::string message) {
+//    flatbuffers::FlatBufferBuilder* msgBuilder = new flatbuffers::FlatBufferBuilder();
+//    auto id = msgBuilder->CreateString("uuid-1");
+//    auto status = 1234;
+//    auto messageInfo = msgBuilder->CreateString(message);
+//
+//    std::vector<long> vec = {1561,152116,151616,7848};
+//    auto states = msgBuilder->CreateVector(vec);
+//
+//    auto msg = CreateMessageFlatbuffers(*msgBuilder, id, status, states, messageInfo);
+//    msgBuilder->Finish(msg);
+//    return msgBuilder;
+//}
 
 static void cleanUpMsgData(void* data, void* hint)
 {

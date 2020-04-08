@@ -1,10 +1,11 @@
-#include "capnzero/SubscriberSBE.h"
+#include "capnzero/SubscriberCapnProto.h"
 //#define DEBUG_SUBSCRIBER
 
 namespace capnzero
 {
+const int SubscriberCapnProto::WORD_SIZE = sizeof(capnp::word);
 
-    SubscriberSBE::SubscriberSBE(void* context, Protocol protocol)
+    SubscriberCapnProto::SubscriberCapnProto(void* context, Protocol protocol)
         : socket(nullptr)
         , rcvTimeout(500)
         , topic("???") // this filter topic will hopefully never be used
@@ -31,7 +32,7 @@ namespace capnzero
     check(zmq_setsockopt(this->socket, ZMQ_RCVTIMEO, &rcvTimeout, sizeof(rcvTimeout)), "zmq_setsockopt");
 }
 
-    SubscriberSBE::~SubscriberSBE()
+    SubscriberCapnProto::~SubscriberCapnProto()
 {
     this->running = false;
     this->runThread->join();
@@ -39,7 +40,7 @@ namespace capnzero
     check(zmq_close(this->socket), "zmq_close");
 }
 
-void SubscriberSBE::setTopic(std::string topic)
+void SubscriberCapnProto::setTopic(std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Subscriber::setTopic: The given topic is too long!");
 
@@ -66,7 +67,7 @@ void SubscriberSBE::setTopic(std::string topic)
     }
 }
 
-void SubscriberSBE::addAddress(std::string address)
+void SubscriberCapnProto::addAddress(std::string address)
 {
     switch (protocol) {
     case Protocol::UDP:
@@ -84,20 +85,15 @@ void SubscriberSBE::addAddress(std::string address)
     }
 }
 
-void SubscriberSBE::subscribe(void (*callbackFunction)(sbe::MessageSBE* msg)) {
+void SubscriberCapnProto::subscribe(void (*callbackFunction)(std::string)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
-        this->runThread = new std::thread(&SubscriberSBE::receive, this);
+        this->runThread = new std::thread(&SubscriberCapnProto::receive, this);
     }
 }
 
-void SubscriberSBE::setReceiveQueueSize(int queueSize)
-{
-    check( zmq_setsockopt(this->socket, ZMQ_RCVHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
-}
-
-void SubscriberSBE::receive()
+void SubscriberCapnProto::receive()
 {
     while (this->running) {
 
@@ -127,19 +123,23 @@ void SubscriberSBE::receive()
 #ifdef DEBUG_SUBSCRIBER
         std::cout << std::endl;
 #endif
-        char* data = (char*) zmq_msg_data(&msg);
-        size_t bufferLength = zmq_msg_size(&msg);
-        sbe::MessageHeader hdr;
-        sbe::MessageSBE message;
 
-        message.wrapAndApplyHeader(data, 0, bufferLength);
-//        auto id = message.id();
-//        auto status = message.status();
-//        auto states = message.states();
-//        auto messageInfo = message.messageInfo();
+        // Received message must contain an integral number of words.
+        if (zmq_msg_size(&msg) % SubscriberCapnProto::WORD_SIZE != 0) {
+            std::cerr << "Subscriber::receive(): Message received with a size of non-integral number of words!" << std::endl;
+            check(zmq_msg_close(&msg), "zmq_msg_close");
+            continue;
+        }
 
+        // Check whether message is memory aligned
+//        assert(reinterpret_cast<uintptr_t>(zmq_msg_data(&msg)) % Subscriber::WORD_SIZE == 0);
 
-        (this->callbackFunction_)(&message);
+        // Call the callback with Cap'n Proto message
+        int msgSize = zmq_msg_size(&msg);
+        auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
+        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
+        std::string message = msgReader.getRoot<capnzero::MessageCapnp>().toString().flatten().cStr();
+        (this->callbackFunction_)(message);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }
