@@ -18,7 +18,7 @@ namespace capnzero {
     public:
         BenchmarkProtobuf() = default;
         ~BenchmarkProtobuf() = default;
-        int messageSizeBenchmark(std::string message);
+        std::string messageSizeBenchmark(std::string message);
         std::string maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
     };
 }

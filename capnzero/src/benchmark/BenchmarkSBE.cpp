@@ -41,7 +41,7 @@ namespace capnzero {
         return sub;
     }
 
-    int BenchmarkSBE::messageSizeBenchmark(std::string message) {
+    std::string BenchmarkSBE::messageSizeBenchmark(std::string message) {
         //Setup
         int statesCount = 2;
         int messageSizeInBytes = 0;
@@ -96,7 +96,13 @@ namespace capnzero {
         std::cout << "Message size: " << messageSizeInBytes << " bytes\n" << std::endl;
         delete sub;
 
-        return messageSizeInBytes;
+        std::stringstream ss;
+        ss << "\n\t\t\tmessage size: " << messageSizeInBytes << " bytes" ;
+        ss << "\n\t\t\ttime: " << time << "us" << "\n";
+        ss << "\t\t\tretries: " << retries << "\n";
+        ss << "\t\t\ttime - time for retries: " << time - (1000000 * retries) << "us" << "\n";
+
+        return ss.str();
     }
 
     std::string BenchmarkSBE::maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages) {

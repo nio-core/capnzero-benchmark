@@ -36,7 +36,7 @@ namespace capnzero {
         return sub;
     }
 
-    int BenchmarkFlatbuffers::messageSizeBenchmark(std::string message) {
+    std::string BenchmarkFlatbuffers::messageSizeBenchmark(std::string message) {
         //Setup
         int messageSizeInBytes = 0;
         int sendBytes = 0;
@@ -77,7 +77,13 @@ namespace capnzero {
         std::cout << "Message size: " << messageSizeInBytes << " bytes\n" <<  std::endl;
         delete sub;
 
-        return messageSizeInBytes;
+        std::stringstream ss;
+        ss << "\n\t\t\tmessage size: " << messageSizeInBytes << " bytes" ;
+        ss << "\n\t\t\ttime: " << time << "us" << "\n";
+        ss << "\t\t\tretries: " << retries << "\n";
+        ss << "\t\t\ttime - time for retries: " << time - (1000000 * retries) << "us" << "\n";
+
+        return ss.str();
     }
 
     std::string BenchmarkFlatbuffers::maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages) {

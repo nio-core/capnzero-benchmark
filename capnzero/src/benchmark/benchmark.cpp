@@ -69,35 +69,35 @@ int main(int argc, char** argv)
     file.open(filename.str());
 
     capnzero::BenchmarkFlatbuffers benchmarkFlatbuffers;
-    int emptyMessageSizeFlatbuffers = benchmarkFlatbuffers.messageSizeBenchmark(emptyMessage);
-    int smallMessageSizeFlatbuffers = benchmarkFlatbuffers.messageSizeBenchmark(smallMessage);
-    int mediumMessageSizeFlatbuffers = benchmarkFlatbuffers.messageSizeBenchmark(mediumMessage);
-    int largeMessageSizeFlatbuffers = benchmarkFlatbuffers.messageSizeBenchmark(largeMessage);
+    std::string emptyMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(emptyMessage);
+    std::string smallMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(smallMessage);
+    std::string mediumMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(mediumMessage);
+    std::string largeMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(largeMessage);
 
     capnzero::BenchmarkCapnProto benchmarkCapnProto;
-    int emptyMessageSizeCapnProto = benchmarkCapnProto.messageSizeBenchmark(emptyMessage);
-    int smallMessageSizeCapnProto = benchmarkCapnProto.messageSizeBenchmark(smallMessage);
-    int mediumMessageSizeCapnProto = benchmarkCapnProto.messageSizeBenchmark(mediumMessage);
-    int largeMessageSizeCapnProto = benchmarkCapnProto.messageSizeBenchmark(largeMessage);
+    std::string emptyMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(emptyMessage);
+    std::string smallMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(smallMessage);
+    std::string mediumMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(mediumMessage);
+    std::string largeMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(largeMessage);
 
     capnzero::BenchmarkProtobuf benchmarkProtobuf;
-    int emptyMessageSizeProtobuf = benchmarkProtobuf.messageSizeBenchmark(emptyMessage);
-    int smallMessageSizeProtobuf = benchmarkProtobuf.messageSizeBenchmark(smallMessage);
-    int mediumMessageSizeProtobuf = benchmarkProtobuf.messageSizeBenchmark(mediumMessage);
-    int largeMessageSizeProtobuf = benchmarkProtobuf.messageSizeBenchmark(largeMessage);
+    std::string emptyMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(emptyMessage);
+    std::string smallMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(smallMessage);
+    std::string mediumMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(mediumMessage);
+    std::string largeMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(largeMessage);
 
     capnzero::BenchmarkSBE benchmarkSBE;
-    int emptyMessageSizeSBE = benchmarkSBE.messageSizeBenchmark(emptyMessage);
-    int smallMessageSizeSBE = benchmarkSBE.messageSizeBenchmark(smallMessage);
-    int mediumMessageSizeSBE = benchmarkSBE.messageSizeBenchmark(mediumMessage);
-    int largeMessageSizeSBE = benchmarkSBE.messageSizeBenchmark(largeMessage);
+    std::string emptyMessageSBEResult = benchmarkSBE.messageSizeBenchmark(emptyMessage);
+    std::string smallMessageSBEResult = benchmarkSBE.messageSizeBenchmark(smallMessage);
+    std::string mediumMessageSBEResult = benchmarkSBE.messageSizeBenchmark(mediumMessage);
+    std::string largeMessageSBEResult = benchmarkSBE.messageSizeBenchmark(largeMessage);
 
     file << "Flatbuffers";
     file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageSizeFlatbuffers;
-    file << "\n\t\tsmall: " << smallMessageSizeFlatbuffers;
-    file << "\n\t\tmedium: " << mediumMessageSizeFlatbuffers;
-    file << "\n\t\tlarge: " << largeMessageSizeFlatbuffers;
+    file << "\n\t\tempty: " << emptyMessageFlatbuffersResult;
+    file << "\n\t\tsmall: " << smallMessageFlatbuffersResult;
+    file << "\n\t\tmedium: " << mediumMessageFlatbuffersResult;
+    file << "\n\t\tlarge: " << largeMessageFlatbuffersResult;
     file.flush();
 
     pid_t flatbuffers_pid = fork();
@@ -118,10 +118,10 @@ int main(int argc, char** argv)
 
     file << "\n\nProtobuf";
     file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageSizeProtobuf;
-    file << "\n\t\tsmall: " << smallMessageSizeProtobuf;
-    file << "\n\t\tmedium: " << mediumMessageSizeProtobuf;
-    file << "\n\t\tlarge: " << largeMessageSizeProtobuf;
+    file << "\n\t\tempty: " << emptyMessageProtobufResult;
+    file << "\n\t\tsmall: " << smallMessageProtobufResult;
+    file << "\n\t\tmedium: " << mediumMessageProtobufResult;
+    file << "\n\t\tlarge: " << largeMessageProtobufResult;
     file.flush();
 
     pid_t protobuf_pid = fork();
@@ -142,10 +142,10 @@ int main(int argc, char** argv)
 
     file << "\n\nCapnProto";
     file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageSizeCapnProto;
-    file << "\n\t\tsmall: " << smallMessageSizeCapnProto;
-    file << "\n\t\tmedium: " << mediumMessageSizeCapnProto;
-    file << "\n\t\tlarge: " << largeMessageSizeCapnProto;
+    file << "\n\t\tempty: " << emptyMessageCapnProtoResults;
+    file << "\n\t\tsmall: " << smallMessageCapnProtoResults;
+    file << "\n\t\tmedium: " << mediumMessageCapnProtoResults;
+    file << "\n\t\tlarge: " << largeMessageCapnProtoResults;
     file.flush();
 
     pid_t capnproto_pid = fork();
@@ -166,10 +166,10 @@ int main(int argc, char** argv)
 
     file << "\n\nSBE";
     file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageSizeSBE;
-    file << "\n\t\tsmall: " << smallMessageSizeSBE;
-    file << "\n\t\tmedium: " << mediumMessageSizeSBE;
-    file << "\n\t\tlarge: " << largeMessageSizeSBE;
+    file << "\n\t\tempty: " << emptyMessageSBEResult;
+    file << "\n\t\tsmall: " << smallMessageSBEResult;
+    file << "\n\t\tmedium: " << mediumMessageSBEResult;
+    file << "\n\t\tlarge: " << largeMessageSBEResult;
     file.flush();
 
     pid_t sbe_pid = fork();
