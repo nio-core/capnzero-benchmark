@@ -120,4 +120,75 @@ namespace capnzero {
 
         return ss.str();
     }
+
+    std::string BenchmarkProtobuf::encodeDecodeBenchmark(std::string message, int runs) {
+        std::cout << "encode decode benchmark protobuf with " << runs << " encodes / decodes and size " << message.size() << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            /*
+             * Encode message
+             */
+            capnzero::MessageProtobuf msgBuilder;
+            msgBuilder.set_id("uuid-1234");
+            msgBuilder.set_status(12151);
+            msgBuilder.add_states(245124);
+            msgBuilder.add_states(42591865196);
+            msgBuilder.add_states(17589169814);
+            msgBuilder.set_messageinfo(message);
+
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto timeEncoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        std::cout << "encode " << runs << " messages: " << timeEncoding << "ms" << std::endl;
+
+        /*
+         * setup message to decode
+         */
+        capnzero::MessageProtobuf msgBuilder;
+        msgBuilder.set_id("uuid-1234");
+        msgBuilder.set_status(12151);
+        msgBuilder.add_states(245124);
+        msgBuilder.add_states(42591865196);
+        msgBuilder.add_states(17589169814);
+        msgBuilder.set_messageinfo(message);
+
+        zmq_msg_t msg;
+        void* msg_ser = malloc(msgBuilder.ByteSizeLong());
+        msgBuilder.SerializeToArray(msg_ser, msgBuilder.ByteSizeLong());
+        zmq_msg_init_data(&msg, msg_ser, msgBuilder.ByteSizeLong(), nullptr, NULL);
+
+        start = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            /*
+             * Decode message
+             */
+            void* data = zmq_msg_data(&msg);
+            size_t len = zmq_msg_size(&msg);
+            MessageProtobuf messageProtobuf;
+            messageProtobuf.ParseFromArray(data, len);
+
+            std::string id = messageProtobuf.id();
+            long int status = messageProtobuf.status();
+            google::protobuf::RepeatedField<long int> states = messageProtobuf.states();
+            std::string messageInfo = messageProtobuf.messageinfo();
+        }
+
+        end = std::chrono::high_resolution_clock::now();
+        auto timeDecoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        free(msg_ser);
+
+        std::cout << "decode " << runs << " messages: " << timeDecoding << "ms\n" << std::endl;
+
+        std::stringstream ss;
+        ss << "\n\t\t\tsize: " << message.size();
+        ss << "\n\t\t\truns: " << runs << "\n";
+        ss << "\t\t\ttime encoding: " << timeEncoding << "ms" << "\n";
+        ss << "\t\t\ttime decoding: " << timeDecoding << "ms" << "\n";
+        return ss.str();
+    }
 }

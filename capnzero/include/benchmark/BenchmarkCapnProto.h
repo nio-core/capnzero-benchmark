@@ -22,6 +22,7 @@ namespace capnzero {
         ~BenchmarkCapnProto() = default;
         std::string messageSizeBenchmark(std::string message);
         std::string maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
+        std::string encodeDecodeBenchmark(std::string message, int runs);
     };
 }
 

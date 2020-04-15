@@ -125,4 +125,66 @@ namespace capnzero {
 
         return ss.str();
     }
+
+    std::string BenchmarkFlatbuffers::encodeDecodeBenchmark(std::string message, int runs) {
+        std::cout << "encode decode benchmark flatbuffers with " << runs << " encodes / decodes and size " << message.size() << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            flatbuffers::FlatBufferBuilder msgBuilder;
+            auto id = msgBuilder.CreateString("uuid-1");
+            auto status = 1234;
+            auto messageInfo = msgBuilder.CreateString(message);
+
+            std::vector<long> vec = {1561,152116,151616,7848};
+            auto states = msgBuilder.CreateVector(vec);
+
+            auto msg = CreateMessageFlatbuffers(msgBuilder, id, status, states, messageInfo);
+            msgBuilder.Finish(msg);
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto timeEncoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        std::cout << "encode " << runs << " messages: " << timeEncoding << "ms" << std::endl;
+
+        /*
+         * setup message to decode
+         */
+        flatbuffers::FlatBufferBuilder msgBuilder;
+        auto id = msgBuilder.CreateString("uuid-1");
+        auto status = 1234;
+        auto messageInfo = msgBuilder.CreateString(message);
+
+        std::vector<long> vec = {1561,152116,151616,7848};
+        auto states = msgBuilder.CreateVector(vec);
+
+        auto messageFlatbuffers = CreateMessageFlatbuffers(msgBuilder, id, status, states, messageInfo);
+        msgBuilder.Finish(messageFlatbuffers);
+
+        zmq_msg_t msg;
+        zmq_msg_init_data(&msg, msgBuilder.GetBufferPointer(), msgBuilder.GetSize(), nullptr, msgBuilder.GetBufferPointer());
+
+        start = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            auto messageFlatbuffers = GetMessageFlatbuffers(zmq_msg_data(&msg));
+            auto id = messageFlatbuffers->id()->c_str();
+            long status = messageFlatbuffers->status();
+            auto states = messageFlatbuffers->states();
+            auto messageInfo = messageFlatbuffers->messageInfo()->c_str();
+        }
+
+        end = std::chrono::high_resolution_clock::now();
+        auto timeDecoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        std::cout << "decode " << runs << " messages: " << timeDecoding << "ms\n" << std::endl;
+
+        std::stringstream ss;
+        ss << "\n\t\t\tsize: " << message.size();
+        ss << "\n\t\t\truns: " << runs << "\n";
+        ss << "\t\t\ttime encoding: " << timeEncoding << "ms" << "\n";
+        ss << "\t\t\ttime decoding: " << timeDecoding << "ms" << "\n";
+        return ss.str();
+    }
 }

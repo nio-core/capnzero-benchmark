@@ -1,7 +1,3 @@
-//
-// Created by bjoern on 30.03.20.
-//
-
 #include "../../include/benchmark/BenchmarkSBE.h"
 namespace capnzero {
     int messagesReceivedSBE = 0;
@@ -152,6 +148,108 @@ namespace capnzero {
         ss << "\n\t\t\tmessage size in bytes: " << messageSize << "\n";
         ss << "\t\t\tsend: " << messagesSend << "\n";
         ss << "\t\t\treceived: " << messagesReceivedSBE << "\n";
+        return ss.str();
+    }
+
+    std::string BenchmarkSBE::encodeDecodeBenchmark(std::string message, int runs) {
+        std::cout << "encode decode benchmark sbe with " << runs << " encodes / decodes and size " << message.size() << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            /*
+             * Encode message
+             */
+            sbe::MessageSBE msg;
+            sbe::MessageHeader hdr;
+            int size = 21 +
+                       + sbe::MessageSBE::States::stateEncodingLength() * 2
+                       + message.size()
+                       + sbe::MessageSBE::messageInfoHeaderLength();
+            char buffer[size];
+            int bufferLength = sizeof(buffer);
+
+            hdr.wrap(buffer, 0, 0, bufferLength)
+                    .blockLength(sbe::MessageSBE::sbeBlockLength())
+                    .templateId(sbe::MessageSBE::sbeTemplateId())
+                    .schemaId(sbe::MessageSBE::sbeSchemaId())
+                    .version(sbe::MessageSBE::sbeSchemaVersion());
+            msg.wrapForEncode(buffer, hdr.encodedLength(), bufferLength);
+
+            msg.id('u')
+                    .status(123156)
+                    .statesCount(2)
+                    .next().state(9070150)
+                    .next().state(5432);
+            msg.putMessageInfo(message.c_str(), strlen(message.c_str()));
+
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto timeEncoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        std::cout << "encode " << runs << " messages: " << timeEncoding << "ms\n" << std::endl;
+
+//        /*
+//         * setup message to decode
+//         */
+//        sbe::MessageSBE msgSBE;
+//        sbe::MessageHeader hdr;
+//        int size = 21 +
+//                   + sbe::MessageSBE::States::stateEncodingLength() * 2
+//                   + message.size()
+//                   + sbe::MessageSBE::messageInfoHeaderLength();
+//        char buffer[size];
+//        std::cout << "size: " << size << std::endl;
+//        int bufferLength = sizeof(buffer);
+//
+//        hdr.wrap(buffer, 0, 0, bufferLength)
+//                .blockLength(sbe::MessageSBE::sbeBlockLength())
+//                .templateId(sbe::MessageSBE::sbeTemplateId())
+//                .schemaId(sbe::MessageSBE::sbeSchemaId())
+//                .version(sbe::MessageSBE::sbeSchemaVersion());
+//        msgSBE.wrapForEncode(buffer, hdr.encodedLength(), bufferLength);
+//
+//        msgSBE.id('u')
+//                .status(123156)
+//                .statesCount(2)
+//                .next().state(9070150)
+//                .next().state(5432);
+//        msgSBE.putMessageInfo(message.c_str(), strlen(message.c_str()));
+//
+//        zmq_msg_t msg;
+//        zmq_msg_init_data(&msg, msgSBE.buffer(), msgSBE.bufferLength(), nullptr, NULL);
+//
+//        start = std::chrono::high_resolution_clock::now();
+//
+//        for (int i = 0; i < runs; i++) {
+//            /*
+//             * Decode message
+//             */
+//            char* data = (char*) zmq_msg_data(&msg);
+//            size_t bufferLength = zmq_msg_size(&msg);
+//            std::cout << "bufferlength: " << bufferLength << std::endl;
+//            sbe::MessageHeader hdr;
+//            sbe::MessageSBE message;
+//
+//            message.wrapAndApplyHeader(data, 0, bufferLength);
+//            char id = msgSBE.id();
+//            long int status = msgSBE.status();
+//            sbe::MessageSBE::States &states = msgSBE.states();
+//            while (states.hasNext()) {
+//                states.next();
+//            }
+//            std::string messageInfo = msgSBE.getMessageInfoAsString();
+//        }
+//
+//        end = std::chrono::high_resolution_clock::now();
+//        time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+//
+//        std::cout << "decode " << runs << " messages: " << time << "ms\n" << std::endl;
+
+        std::stringstream ss;
+        ss << "\n\t\t\tsize: " << message.size();
+        ss << "\n\t\t\truns: " << runs << "\n";
+        ss << "\t\t\ttime encoding: " << timeEncoding << "ms" << "\n";
         return ss.str();
     }
 }

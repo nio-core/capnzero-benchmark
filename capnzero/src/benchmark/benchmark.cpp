@@ -47,6 +47,7 @@ static std::string generateRandomMessage(int size) {
 
 int main(int argc, char** argv)
 {
+    int encodeDecodeRuns = 1000000;
     s_catch_signals();
     std::cerr << argc << std::endl;
 
@@ -74,11 +75,21 @@ int main(int argc, char** argv)
     std::string mediumMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(mediumMessage);
     std::string largeMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(largeMessage);
 
+    std::string emptyMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    std::string smallMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    std::string mediumMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    std::string largeMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+
     capnzero::BenchmarkCapnProto benchmarkCapnProto;
     std::string emptyMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(emptyMessage);
     std::string smallMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(smallMessage);
     std::string mediumMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(mediumMessage);
     std::string largeMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(largeMessage);
+
+    std::string emptyMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    std::string smallMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    std::string mediumMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    std::string largeMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
     capnzero::BenchmarkProtobuf benchmarkProtobuf;
     std::string emptyMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(emptyMessage);
@@ -86,11 +97,21 @@ int main(int argc, char** argv)
     std::string mediumMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(mediumMessage);
     std::string largeMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(largeMessage);
 
+    std::string emptyMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    std::string smallMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    std::string mediumMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    std::string largeMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+
     capnzero::BenchmarkSBE benchmarkSBE;
     std::string emptyMessageSBEResult = benchmarkSBE.messageSizeBenchmark(emptyMessage);
     std::string smallMessageSBEResult = benchmarkSBE.messageSizeBenchmark(smallMessage);
     std::string mediumMessageSBEResult = benchmarkSBE.messageSizeBenchmark(mediumMessage);
     std::string largeMessageSBEResult = benchmarkSBE.messageSizeBenchmark(largeMessage);
+
+    std::string emptyMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    std::string smallMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    std::string mediumMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    std::string largeMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
     file << "Flatbuffers";
     file << "\n\tmessage size: ";
@@ -98,6 +119,13 @@ int main(int argc, char** argv)
     file << "\n\t\tsmall: " << smallMessageFlatbuffersResult;
     file << "\n\t\tmedium: " << mediumMessageFlatbuffersResult;
     file << "\n\t\tlarge: " << largeMessageFlatbuffersResult;
+
+    file << "\n\tencoding / decoding speed: ";
+    file << "\n\t\tempty: " << emptyMessageFlatbuffersEncodeDecode;
+    file << "\n\t\tsmall: " << smallMessageFlatbuffersEncodeDecode;
+    file << "\n\t\tmedium: " << mediumMessageFlatbuffersEncodeDecode;
+    file << "\n\t\tlarge: " << largeMessageFlatbuffersEncodeDecode;
+
     file.flush();
 
     pid_t flatbuffers_pid = fork();
@@ -122,6 +150,12 @@ int main(int argc, char** argv)
     file << "\n\t\tsmall: " << smallMessageProtobufResult;
     file << "\n\t\tmedium: " << mediumMessageProtobufResult;
     file << "\n\t\tlarge: " << largeMessageProtobufResult;
+
+    file << "\n\tencoding / decoding speed: ";
+    file << "\n\t\tempty: " << emptyMessageProtobufEncodeDecode;
+    file << "\n\t\tsmall: " << smallMessageProtobufEncodeDecode;
+    file << "\n\t\tmedium: " << mediumMessageProtobufEncodeDecode;
+    file << "\n\t\tlarge: " << largeMessageProtobufEncodeDecode;
     file.flush();
 
     pid_t protobuf_pid = fork();
@@ -146,6 +180,13 @@ int main(int argc, char** argv)
     file << "\n\t\tsmall: " << smallMessageCapnProtoResults;
     file << "\n\t\tmedium: " << mediumMessageCapnProtoResults;
     file << "\n\t\tlarge: " << largeMessageCapnProtoResults;
+
+    file << "\n\tencoding / decoding speed: ";
+    file << "\n\t\tempty: " << emptyMessageCapnProtoEncodeDecode;
+    file << "\n\t\tsmall: " << smallMessageCapnProtoEncodeDecode;
+    file << "\n\t\tmedium: " << mediumMessageCapnProtoEncodeDecode;
+    file << "\n\t\tlarge: " << largeMessageCapnProtoEncodeDecode;
+
     file.flush();
 
     pid_t capnproto_pid = fork();
@@ -170,6 +211,13 @@ int main(int argc, char** argv)
     file << "\n\t\tsmall: " << smallMessageSBEResult;
     file << "\n\t\tmedium: " << mediumMessageSBEResult;
     file << "\n\t\tlarge: " << largeMessageSBEResult;
+
+    file << "\n\tencoding / decoding speed: ";
+    file << "\n\t\tempty: " << emptyMessageSBEEncodeDecode;
+    file << "\n\t\tsmall: " << smallMessageSBEEncodeDecode;
+    file << "\n\t\tmedium: " << mediumMessageSBEEncodeDecode;
+    file << "\n\t\tlarge: " << largeMessageSBEEncodeDecode;
+
     file.flush();
 
     pid_t sbe_pid = fork();
