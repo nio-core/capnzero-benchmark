@@ -127,11 +127,19 @@ void SubscriberFlatbuffers::receive()
 #ifdef DEBUG_SUBSCRIBER
         std::cout << std::endl;
 #endif
-        auto messageFlatbuffers = GetMessageFlatbuffers(zmq_msg_data(&msg));
-//        auto id = messageFlatbuffers->id()->c_str();
-//        long status = messageFlatbuffers->status();
-//        auto states = messageFlatbuffers->states();
-//        auto messageInfo = messageFlatbuffers->messageInfo()->c_str();
+
+        // Received message must be valid.
+        uint8_t* buf = static_cast<uint8_t *>(zmq_msg_data(&msg));
+        size_t size = zmq_msg_size(&msg);
+        auto verifier = flatbuffers::Verifier(buf, size);
+        auto valid = VerifyMessageFlatbuffersBuffer(verifier);
+        if (!valid) {
+            std::cerr << "Subscriber::receive(): Message buffer invalid!" << std::endl;
+            check(zmq_msg_close(&msg), "zmq_msg_close");
+            continue;
+        }
+
+        auto messageFlatbuffers = GetMessageFlatbuffers(buf);
         (this->callbackFunction_)(*messageFlatbuffers);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");

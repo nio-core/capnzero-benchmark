@@ -92,6 +92,9 @@ int main(int argc, char **argv) {
     }
 
     if (encodingID == 1) {
+        // compatible with the version of the headers we compiled against.
+        GOOGLE_PROTOBUF_VERIFY_VERSION;
+
         std::cout << "Selected encoding: Protobuf" << std::endl;
         void *ctx = zmq_ctx_new();
         auto pub = capnzero::PublisherProtobuf(ctx, capnzero::Protocol::UDP);

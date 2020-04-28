@@ -187,7 +187,7 @@ namespace capnzero {
         auto end = std::chrono::high_resolution_clock::now();
         auto timeEncoding = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-        std::cout << "encode " << runs << " messages: " << timeEncoding << "ms\n" << std::endl;
+        std::cout << "encode " << runs << " messages: " << timeEncoding << "ms" << std::endl;
 
 //        /*
 //         * setup message to decode
@@ -218,38 +218,66 @@ namespace capnzero {
 //
 //        zmq_msg_t msg;
 //        zmq_msg_init_data(&msg, msgSBE.buffer(), msgSBE.bufferLength(), nullptr, NULL);
-//
-//        start = std::chrono::high_resolution_clock::now();
-//
-//        for (int i = 0; i < runs; i++) {
-//            /*
-//             * Decode message
-//             */
-//            char* data = (char*) zmq_msg_data(&msg);
-//            size_t bufferLength = zmq_msg_size(&msg);
-//            std::cout << "bufferlength: " << bufferLength << std::endl;
-//            sbe::MessageHeader hdr;
-//            sbe::MessageSBE message;
-//
-//            message.wrapAndApplyHeader(data, 0, bufferLength);
-//            char id = msgSBE.id();
-//            long int status = msgSBE.status();
-//            sbe::MessageSBE::States &states = msgSBE.states();
-//            while (states.hasNext()) {
-//                states.next();
-//            }
-//            std::string messageInfo = msgSBE.getMessageInfoAsString();
-//        }
-//
-//        end = std::chrono::high_resolution_clock::now();
-//        time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-//
-//        std::cout << "decode " << runs << " messages: " << time << "ms\n" << std::endl;
+
+        auto startDecode = std::chrono::high_resolution_clock::now();
+
+        for (int i = 0; i < runs; i++) {
+            /*
+         * setup message to decode
+         */
+            int size = 21 +
+                       + sbe::MessageSBE::States::stateEncodingLength() * 2
+                       + message.size()
+                       + sbe::MessageSBE::messageInfoHeaderLength();
+            sbe::MessageSBE msgSBE;
+            sbe::MessageHeader hdrEncode;
+            char buffer[size];
+            int bufferLength = sizeof(buffer);
+
+            hdrEncode.wrap(buffer, 0, 0, bufferLength)
+                    .blockLength(sbe::MessageSBE::sbeBlockLength())
+                    .templateId(sbe::MessageSBE::sbeTemplateId())
+                    .schemaId(sbe::MessageSBE::sbeSchemaId())
+                    .version(sbe::MessageSBE::sbeSchemaVersion());
+            msgSBE.wrapForEncode(buffer, hdrEncode.encodedLength(), bufferLength);
+
+            msgSBE.id('u')
+                    .status(123156)
+                    .statesCount(2)
+                    .next().state(9070150)
+                    .next().state(5432);
+            msgSBE.putMessageInfo(message.c_str(), strlen(message.c_str()));
+
+            zmq_msg_t msg;
+            zmq_msg_init_data(&msg, msgSBE.buffer(), msgSBE.bufferLength(), nullptr, NULL);
+
+            /*
+             * Decode message
+             */
+            char* data = (char*) zmq_msg_data(&msg);
+            sbe::MessageHeader hdr;
+            sbe::MessageSBE message;
+
+            message.wrapAndApplyHeader(data, 0, zmq_msg_size(&msg));
+            char id = msgSBE.id();
+            long int status = message.status();
+            sbe::MessageSBE::States &states = message.states();
+            while (states.hasNext()) {
+                states.next();
+            }
+            std::string messageInfo = message.getMessageInfoAsString();
+        }
+
+        auto endDecode = std::chrono::high_resolution_clock::now();
+        auto timeDecode = std::chrono::duration_cast<std::chrono::milliseconds>(endDecode - start).count();
+
+        std::cout << "decode " << runs << " messages: " << timeDecode - timeEncoding << "ms\n" << std::endl;
 
         std::stringstream ss;
         ss << "\n\t\t\tsize: " << message.size();
         ss << "\n\t\t\truns: " << runs << "\n";
         ss << "\t\t\ttime encoding: " << timeEncoding << "ms" << "\n";
+        ss << "\t\t\ttime decoding: " << timeDecode - timeEncoding << "ms" << "\n";
         return ss.str();
     }
 }

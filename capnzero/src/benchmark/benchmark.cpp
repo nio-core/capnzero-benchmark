@@ -47,6 +47,9 @@ static std::string generateRandomMessage(int size) {
 
 int main(int argc, char** argv)
 {
+    // compatible with the version of the headers we compiled against.
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     int encodeDecodeRuns = 1000000;
     s_catch_signals();
     std::cerr << argc << std::endl;
