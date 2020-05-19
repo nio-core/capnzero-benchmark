@@ -36,7 +36,7 @@ namespace capnzero {
         return sub;
     }
 
-    std::string BenchmarkFlatbuffers::messageSizeBenchmark(std::string message) {
+    json BenchmarkFlatbuffers::messageSizeBenchmark(std::string message) {
         //Setup
         int messageSizeInBytes = 0;
         int sendBytes = 0;
@@ -77,16 +77,16 @@ namespace capnzero {
         std::cout << "Message size: " << messageSizeInBytes << " bytes\n" <<  std::endl;
         delete sub;
 
-        std::stringstream ss;
-        ss << "\n\t\t\tmessage size: " << messageSizeInBytes << " bytes" ;
-        ss << "\n\t\t\ttime: " << time << "us" << "\n";
-        ss << "\t\t\tretries: " << retries << "\n";
-        ss << "\t\t\ttime - time for retries: " << time - (1000000 * retries) << "us" << "\n";
+        json result;
+        result["size_in_bytes"] = messageSizeInBytes;
+        result["time_in_us"] = time;
+        result["retries"] = retries;
+        result["time_adjusted"] = (time - (1000000 * retries));
 
-        return ss.str();
+        return result;
     }
 
-    std::string BenchmarkFlatbuffers::maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages) {
+    json BenchmarkFlatbuffers::maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages) {
         int messagesSend = 0;
         int messageSize = 0;
 
@@ -123,10 +123,17 @@ namespace capnzero {
         ss << "\t\t\treceived: " << messagesReceivedFlatbuffers << "\n";
         delete sub;
 
-        return ss.str();
+        json result;
+
+        result["ns_between_messages"] = nsBetweenMessages;
+        result["size_in_bytes"] = messageSize;
+        result["messages_send"] = messagesSend;
+        result["messages_received"] = messagesReceivedFlatbuffers;
+
+        return result;
     }
 
-    std::string BenchmarkFlatbuffers::encodeDecodeBenchmark(std::string message, int runs) {
+    json BenchmarkFlatbuffers::encodeDecodeBenchmark(std::string message, int runs) {
         std::cout << "encode decode benchmark flatbuffers with " << runs << " encodes / decodes and size " << message.size() << std::endl;
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -180,11 +187,11 @@ namespace capnzero {
 
         std::cout << "decode " << runs << " messages: " << timeDecoding << "ms\n" << std::endl;
 
-        std::stringstream ss;
-        ss << "\n\t\t\tsize: " << message.size();
-        ss << "\n\t\t\truns: " << runs << "\n";
-        ss << "\t\t\ttime encoding: " << timeEncoding << "ms" << "\n";
-        ss << "\t\t\ttime decoding: " << timeDecoding << "ms" << "\n";
-        return ss.str();
+        json result;
+        result["size"] = message.size();
+        result["runs"] = runs;
+        result["time_encoding_ms"] = timeEncoding;
+        result["time_decoding_ms"] = timeDecoding;
+        return result;
     }
 }

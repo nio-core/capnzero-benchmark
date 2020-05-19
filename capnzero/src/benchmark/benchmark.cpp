@@ -20,6 +20,9 @@
 #include <iostream>
 #include <sys/wait.h>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 static bool interrupted = false;
 
 static void s_signal_handler(int signal_value) {
@@ -67,179 +70,162 @@ int main(int argc, char** argv)
 
     std::time_t timestamp = std::time(nullptr);
     std::stringstream filename;
-    filename << "benchmark_" << std::asctime(std::localtime(&timestamp));
+    filename << "benchmark_" << std::asctime(std::localtime(&timestamp)) << ".json";
 
     std::ofstream file;
     file.open(filename.str());
 
     capnzero::BenchmarkFlatbuffers benchmarkFlatbuffers;
-    std::string emptyMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(emptyMessage);
-    std::string smallMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(smallMessage);
-    std::string mediumMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(mediumMessage);
-    std::string largeMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(largeMessage);
+    json emptyMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(emptyMessage);
+    json smallMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(smallMessage);
+    json mediumMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(mediumMessage);
+    json largeMessageFlatbuffersResult = benchmarkFlatbuffers.messageSizeBenchmark(largeMessage);
 
-    std::string emptyMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
-    std::string smallMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
-    std::string mediumMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
-    std::string largeMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+    json emptyMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    json smallMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    json mediumMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    json largeMessageFlatbuffersEncodeDecode = benchmarkFlatbuffers.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
     capnzero::BenchmarkCapnProto benchmarkCapnProto;
-    std::string emptyMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(emptyMessage);
-    std::string smallMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(smallMessage);
-    std::string mediumMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(mediumMessage);
-    std::string largeMessageCapnProtoResults = benchmarkCapnProto.messageSizeBenchmark(largeMessage);
+    json emptyMessageCapnProtoResult = benchmarkCapnProto.messageSizeBenchmark(emptyMessage);
+    json smallMessageCapnProtoResult = benchmarkCapnProto.messageSizeBenchmark(smallMessage);
+    json mediumMessageCapnProtoResult = benchmarkCapnProto.messageSizeBenchmark(mediumMessage);
+    json largeMessageCapnProtoResult = benchmarkCapnProto.messageSizeBenchmark(largeMessage);
 
-    std::string emptyMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
-    std::string smallMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
-    std::string mediumMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
-    std::string largeMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+    json emptyMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    json smallMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    json mediumMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    json largeMessageCapnProtoEncodeDecode = benchmarkCapnProto.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
     capnzero::BenchmarkProtobuf benchmarkProtobuf;
-    std::string emptyMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(emptyMessage);
-    std::string smallMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(smallMessage);
-    std::string mediumMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(mediumMessage);
-    std::string largeMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(largeMessage);
+    json emptyMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(emptyMessage);
+    json smallMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(smallMessage);
+    json mediumMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(mediumMessage);
+    json largeMessageProtobufResult = benchmarkProtobuf.messageSizeBenchmark(largeMessage);
 
-    std::string emptyMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
-    std::string smallMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
-    std::string mediumMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
-    std::string largeMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+    json emptyMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    json smallMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    json mediumMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    json largeMessageProtobufEncodeDecode = benchmarkProtobuf.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
     capnzero::BenchmarkSBE benchmarkSBE;
-    std::string emptyMessageSBEResult = benchmarkSBE.messageSizeBenchmark(emptyMessage);
-    std::string smallMessageSBEResult = benchmarkSBE.messageSizeBenchmark(smallMessage);
-    std::string mediumMessageSBEResult = benchmarkSBE.messageSizeBenchmark(mediumMessage);
-    std::string largeMessageSBEResult = benchmarkSBE.messageSizeBenchmark(largeMessage);
+    json emptyMessageSBEResult = benchmarkSBE.messageSizeBenchmark(emptyMessage);
+    json smallMessageSBEResult = benchmarkSBE.messageSizeBenchmark(smallMessage);
+    json mediumMessageSBEResult = benchmarkSBE.messageSizeBenchmark(mediumMessage);
+    json largeMessageSBEResult = benchmarkSBE.messageSizeBenchmark(largeMessage);
 
-    std::string emptyMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
-    std::string smallMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
-    std::string mediumMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
-    std::string largeMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+    json emptyMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    json smallMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    json mediumMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    json largeMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
-    file << "Flatbuffers";
-    file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageFlatbuffersResult;
-    file << "\n\t\tsmall: " << smallMessageFlatbuffersResult;
-    file << "\n\t\tmedium: " << mediumMessageFlatbuffersResult;
-    file << "\n\t\tlarge: " << largeMessageFlatbuffersResult;
+    json fbMessageSize;
+    fbMessageSize["empty"] = emptyMessageFlatbuffersResult;
+    fbMessageSize["small"] = smallMessageFlatbuffersResult;
+    fbMessageSize["medium"] = mediumMessageFlatbuffersResult;
+    fbMessageSize["large"] = largeMessageFlatbuffersResult;
 
-    file << "\n\tencoding / decoding speed: ";
-    file << "\n\t\tempty: " << emptyMessageFlatbuffersEncodeDecode;
-    file << "\n\t\tsmall: " << smallMessageFlatbuffersEncodeDecode;
-    file << "\n\t\tmedium: " << mediumMessageFlatbuffersEncodeDecode;
-    file << "\n\t\tlarge: " << largeMessageFlatbuffersEncodeDecode;
-
-    file.flush();
-
-    pid_t flatbuffers_pid = fork();
-    if (flatbuffers_pid == 0) {
-        long ns = 1000;
-        int runs = 20000;
-        file << "\n\tmax rate:\n";
-        while (ns >= 1) {
-            std::string result = benchmarkFlatbuffers.maxMessageRateBenchmark(largeMessage, runs, ns);
-            file << result;
-            std::cout << "success: " << ns << "ns\n" << std::endl;
-            ns /= 10;
-        }
-        return 0;
-    } else {
-        wait(NULL);
+    json fbMaxRate;
+    long ns = 1000;
+    int runs = 20000;
+    while (ns >= 1) {
+        fbMaxRate[std::to_string(ns)] = benchmarkFlatbuffers.maxMessageRateBenchmark(largeMessage, runs, ns);
+        ns /= 10;
     }
 
-    file << "\n\nProtobuf";
-    file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageProtobufResult;
-    file << "\n\t\tsmall: " << smallMessageProtobufResult;
-    file << "\n\t\tmedium: " << mediumMessageProtobufResult;
-    file << "\n\t\tlarge: " << largeMessageProtobufResult;
+    json fbEncodeDecode;
+    fbEncodeDecode["empty"] = emptyMessageFlatbuffersEncodeDecode;
+    fbEncodeDecode["small"] = smallMessageFlatbuffersEncodeDecode;
+    fbEncodeDecode["medium"] = mediumMessageFlatbuffersEncodeDecode;
+    fbEncodeDecode["large"] = largeMessageFlatbuffersEncodeDecode;
 
-    file << "\n\tencoding / decoding speed: ";
-    file << "\n\t\tempty: " << emptyMessageProtobufEncodeDecode;
-    file << "\n\t\tsmall: " << smallMessageProtobufEncodeDecode;
-    file << "\n\t\tmedium: " << mediumMessageProtobufEncodeDecode;
-    file << "\n\t\tlarge: " << largeMessageProtobufEncodeDecode;
-    file.flush();
+    json flatbuffers;
+    flatbuffers["message_size"] = fbMessageSize;
+    flatbuffers["encode_decode"] = fbEncodeDecode;
+    flatbuffers["max_rate"] = fbMaxRate;
 
-    pid_t protobuf_pid = fork();
-    if (protobuf_pid == 0) {
-        long ns = 1000;
-        int runs = 20000;
-        file << "\n\tmax rate:\n";
-        while (ns >= 1) {
-            std::string result = benchmarkProtobuf.maxMessageRateBenchmark(largeMessage, runs, ns);
-            file << result;
-            std::cout << "success: " << ns << "ns\n" << std::endl;
-            ns /= 10;
-        }
-        return 0;
-    } else {
-        wait(NULL);
+    json pbMessageSize;
+    pbMessageSize["empty"] = emptyMessageProtobufResult;
+    pbMessageSize["small"] = smallMessageProtobufResult;
+    pbMessageSize["medium"] = mediumMessageProtobufResult;
+    pbMessageSize["large"] = largeMessageProtobufResult;
+
+    json pbEncodeDecode;
+    pbEncodeDecode["empty"] = emptyMessageProtobufEncodeDecode;
+    pbEncodeDecode["small"] = smallMessageProtobufEncodeDecode;
+    pbEncodeDecode["medium"] = mediumMessageProtobufEncodeDecode;
+    pbEncodeDecode["large"] = largeMessageProtobufEncodeDecode;
+
+    json pbMaxRate;
+    ns = 1000;
+    while (ns >= 1) {
+        pbMaxRate[std::to_string(ns)] = benchmarkProtobuf.maxMessageRateBenchmark(largeMessage, runs, ns);
+        ns /= 10;
     }
 
-    file << "\n\nCapnProto";
-    file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageCapnProtoResults;
-    file << "\n\t\tsmall: " << smallMessageCapnProtoResults;
-    file << "\n\t\tmedium: " << mediumMessageCapnProtoResults;
-    file << "\n\t\tlarge: " << largeMessageCapnProtoResults;
+    json protobuf;
+    protobuf["message_size"] = pbMessageSize;
+    protobuf["encode_decode"] = pbEncodeDecode;
+    protobuf["max_rate"] = pbMaxRate;
 
-    file << "\n\tencoding / decoding speed: ";
-    file << "\n\t\tempty: " << emptyMessageCapnProtoEncodeDecode;
-    file << "\n\t\tsmall: " << smallMessageCapnProtoEncodeDecode;
-    file << "\n\t\tmedium: " << mediumMessageCapnProtoEncodeDecode;
-    file << "\n\t\tlarge: " << largeMessageCapnProtoEncodeDecode;
+    json capnpMessageSize;
+    capnpMessageSize["empty"] = emptyMessageCapnProtoResult;
+    capnpMessageSize["small"] = smallMessageCapnProtoResult;
+    capnpMessageSize["medium"] = mediumMessageCapnProtoResult;
+    capnpMessageSize["large"] = largeMessageCapnProtoResult;
 
-    file.flush();
+    json capnpEncodeDecode;
+    capnpEncodeDecode["empty"] = emptyMessageCapnProtoEncodeDecode;
+    capnpEncodeDecode["small"] = smallMessageCapnProtoEncodeDecode;
+    capnpEncodeDecode["medium"] = mediumMessageCapnProtoEncodeDecode;
+    capnpEncodeDecode["large"] = largeMessageCapnProtoEncodeDecode;
 
-    pid_t capnproto_pid = fork();
-    if (capnproto_pid == 0) {
-        long ns = 1000;
-        int runs = 20000;
-        file << "\n\tmax rate:\n";
-        while (ns >= 1) {
-            std::string result = benchmarkCapnProto.maxMessageRateBenchmark(largeMessage, runs, ns);
-            file << result;
-            std::cout << "success: " << ns << "ns\n" << std::endl;
-            ns /= 10;
-        }
-        return 0;
-    } else {
-        wait(NULL);
+    json capnpMaxRate;
+    ns = 1000;
+    while (ns >= 1) {
+        capnpMaxRate[std::to_string(ns)] = benchmarkCapnProto.maxMessageRateBenchmark(largeMessage, runs, ns);
+        ns /= 10;
     }
 
-    file << "\n\nSBE";
-    file << "\n\tmessage size: ";
-    file << "\n\t\tempty: " << emptyMessageSBEResult;
-    file << "\n\t\tsmall: " << smallMessageSBEResult;
-    file << "\n\t\tmedium: " << mediumMessageSBEResult;
-    file << "\n\t\tlarge: " << largeMessageSBEResult;
+    json capnp;
+    capnp["message_size"] = capnpMessageSize;
+    capnp["encode_decode"] = capnpEncodeDecode;
+    capnp["max_rate"] = capnpMaxRate;
 
-    file << "\n\tencoding / decoding speed: ";
-    file << "\n\t\tempty: " << emptyMessageSBEEncodeDecode;
-    file << "\n\t\tsmall: " << smallMessageSBEEncodeDecode;
-    file << "\n\t\tmedium: " << mediumMessageSBEEncodeDecode;
-    file << "\n\t\tlarge: " << largeMessageSBEEncodeDecode;
+    json sbeMessageSize;
+    sbeMessageSize["empty"] = emptyMessageSBEResult;
+    sbeMessageSize["small"] = smallMessageSBEResult;
+    sbeMessageSize["medium"] = mediumMessageSBEResult;
+    sbeMessageSize["large"] = largeMessageSBEResult;
 
-    file.flush();
+    json sbeEncodeDecode;
+    sbeEncodeDecode["empty"] = emptyMessageSBEEncodeDecode;
+    sbeEncodeDecode["small"] = smallMessageSBEEncodeDecode;
+    sbeEncodeDecode["medium"] = mediumMessageSBEEncodeDecode;
+    sbeEncodeDecode["large"] = largeMessageSBEEncodeDecode;
 
-    pid_t sbe_pid = fork();
-    if (sbe_pid == 0) {
-        long ns = 1000;
-        int runs = 20000;
-        file << "\n\tmax rate:\n";
-        while (ns >= 1) {
-            std::string result = benchmarkSBE.maxMessageRateBenchmark(largeMessage, runs, ns);
-            file << result;
-            std::cout << "success: " << ns << "ns\n" << std::endl;
-            ns /= 10;
-        }
-        return 0;
-    } else {
-        wait(NULL);
+    json sbeMaxRate;
+    ns = 1000;
+    while (ns >= 1) {
+        sbeMaxRate[std::to_string(ns)] = benchmarkSBE.maxMessageRateBenchmark(largeMessage, runs, ns);
+        ns /= 10;
     }
+
+    json sbe;
+    sbe["message_size"] = sbeMessageSize;
+    sbe["encode_decode"] = sbeEncodeDecode;
+    sbe["max_rate"] = sbeMaxRate;
 
     std::cout << "finished benchmark!" << std::endl;
+
+    json root;
+    root["flatbuffers"] = flatbuffers;
+    root["protobuf"] = protobuf;
+    root["capnp"] = capnp;
+    root["sbe"] = sbe;
+    file << root.dump();
+
+    file.flush();
 
      //wait until everything is send
     std::this_thread::sleep_for(std::chrono::seconds(1));

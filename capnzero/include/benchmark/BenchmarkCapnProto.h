@@ -15,14 +15,17 @@
 #include <string>
 #include <sstream>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 namespace capnzero {
     class BenchmarkCapnProto {
     public:
         BenchmarkCapnProto() = default;
         ~BenchmarkCapnProto() = default;
-        std::string messageSizeBenchmark(std::string message);
-        std::string maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
-        std::string encodeDecodeBenchmark(std::string message, int runs);
+        json messageSizeBenchmark(std::string message);
+        json maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
+        json encodeDecodeBenchmark(std::string message, int runs);
     };
 }
 

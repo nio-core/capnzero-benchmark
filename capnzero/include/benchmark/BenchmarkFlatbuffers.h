@@ -11,14 +11,17 @@
 #include <string>
 #include <sstream>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 namespace capnzero {
     class BenchmarkFlatbuffers {
     public:
         BenchmarkFlatbuffers() = default;
         ~BenchmarkFlatbuffers() = default;
-        std::string messageSizeBenchmark(std::string message);
-        std::string maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
-        std::string encodeDecodeBenchmark(std::string message, int runs);
+        json messageSizeBenchmark(std::string message);
+        json maxMessageRateBenchmark(std::string message, int runs, long nsBetweenMessages);
+        json encodeDecodeBenchmark(std::string message, int runs);
     };
 }
 
