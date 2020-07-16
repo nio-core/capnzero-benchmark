@@ -8,11 +8,22 @@
 #include <capnzero/SubscriberProtobuf.h>
 #include <capnzero/SubscriberSBE.h>
 #include <capnzero/SubscriberCapnProto.h>
+#include <capnzero/SubscriberMsgPack.h>
 
 #include <signal.h>
 #include <thread>
 
 //#define DEBUG_SENDER
+
+void callbackMsgPack(capnzero::Message msg)
+{
+    std::cout << "Called callback..." << std::endl;
+    std::cout << "Message type: MsgPack" << std::endl;
+    std::cout << "id: " << msg.id << std::endl;
+    std::cout << "Status: " << msg.status << std::endl;
+//    std::cout << "States: " << msg.states << std::endl;
+    std::cout << "Message Info: " << msg.messageInfo << '\n' << std::endl;
+}
 
 void callbackFlatbuffers(const capnzero::MessageFlatbuffers& msg)
 {
@@ -90,6 +101,26 @@ static void s_catch_signals(void)
     sigemptyset(&action.sa_mask);
     sigaction(SIGINT, &action, NULL);
     sigaction(SIGTERM, &action, NULL);
+}
+
+static void initializeSubscriberMsgPack(char** argv) {
+    std::cout << "Selected encoding: MsgPack" << std::endl;
+    void* ctx = zmq_ctx_new();
+    capnzero::SubscriberMsgPack* sub = new capnzero::SubscriberMsgPack(ctx, capnzero::Protocol::UDP);
+    sub->setTopic(argv[1]);
+
+//    sub->addAddress("@capnzero.ipc");
+    sub->addAddress("224.0.0.2:5555");
+//    sub->addAddress("127.0.0.1:5555");
+
+    sub->subscribe(&callbackMsgPack);
+    while (!interrupted) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    delete sub;
+
+    zmq_ctx_term(ctx);
 }
 
 
@@ -209,6 +240,10 @@ int main(int argc, char** argv)
 
     if (encoding == 3) {
         initializeSubscriberCapnProto(argv);
+    }
+
+    if (encoding == 4) {
+        initializeSubscriberMsgPack(argv);
     }
 
     std::cerr << encoding << " is not a correct encodingID" << std::endl;

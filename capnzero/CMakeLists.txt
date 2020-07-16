@@ -51,6 +51,8 @@ include_directories(
 add_library(${PROJECT_NAME}
         ${PROTO_SRCS}
         ${PROTO_HDRS}
+        src/PublisherMsgPack.cpp
+        src/SubscriberMsgPack.cpp
         src/PublisherFlatbuffers.cpp
         src/SubscriberFlatbuffers.cpp
         src/PublisherProtobuf.cpp

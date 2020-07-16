@@ -2,6 +2,7 @@
 #include <capnzero/PublisherProtobuf.h>
 #include <capnzero/PublisherSBE.h>
 #include <capnzero/PublisherCapnProto.h>
+#include <capnzero/PublisherMsgPack.h>
 
 #include "capnzero-base-msgs/string.capnp.h"
 #include <capnp/message.h>
@@ -15,6 +16,9 @@
 #include <chrono>
 #include <thread>
 #include <signal.h>
+
+#include <msgpack.hpp>
+#include "capnzero/Message.h"
 
 //#define DEBUG_PUB
 
@@ -188,6 +192,33 @@ int main(int argc, char **argv) {
 
         while (!interrupted) {
             int numBytesSent = pub.send(msgBuilder);
+#ifdef DEBUG_PUB
+            std::cout << "pub: " << numBytesSent << " Bytes sent!" << std::endl;
+#endif
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+
+        // wait until everything is send
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    if (encodingID == 4) {
+        std::cout << "Selected encoding: MsgPack" << std::endl;
+        void *ctx = zmq_ctx_new();
+        auto pub = capnzero::PublisherMsgPack(ctx, capnzero::Protocol::UDP);
+
+        capnzero::Message message;
+        message.id = "uuid-1234";
+        message.status = 14515141;
+        message.messageInfo = argv[2];
+        message.states.push_back(3151512);
+        message.states.push_back(2415123);
+
+        pub.setDefaultTopic(argv[1]);
+        pub.addAddress("224.0.0.2:5555");
+
+        while (!interrupted) {
+            int numBytesSent = pub.send(message);
 #ifdef DEBUG_PUB
             std::cout << "pub: " << numBytesSent << " Bytes sent!" << std::endl;
 #endif
