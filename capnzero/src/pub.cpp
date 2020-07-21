@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
         std::cerr << "1: Protobuf" << std::endl;
         std::cerr << "2: SBE" << std::endl;
         std::cerr << "3: CapnProto" << std::endl;
+        std::cerr << "4: MsgPack" << std::endl;
         return -1;
     }
 
@@ -217,8 +218,11 @@ int main(int argc, char **argv) {
         pub.setDefaultTopic(argv[1]);
         pub.addAddress("224.0.0.2:5555");
 
+        msgpack::sbuffer sbuf;
+        msgpack::pack(sbuf, message);
+
         while (!interrupted) {
-            int numBytesSent = pub.send(message);
+            int numBytesSent = pub.send(sbuf);
 #ifdef DEBUG_PUB
             std::cout << "pub: " << numBytesSent << " Bytes sent!" << std::endl;
 #endif

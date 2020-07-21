@@ -65,6 +65,7 @@ add_library(${PROJECT_NAME}
         src/benchmark/BenchmarkCapnProto.cpp
         src/benchmark/BenchmarkProtobuf.cpp
         src/benchmark/BenchmarkSBE.cpp
+        src/benchmark/BenchmarkMsgPack.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)

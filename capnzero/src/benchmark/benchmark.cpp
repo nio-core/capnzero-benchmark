@@ -12,6 +12,7 @@
 #include "benchmark/BenchmarkCapnProto.h"
 #include "benchmark/BenchmarkProtobuf.h"
 #include "benchmark/BenchmarkSBE.h"
+#include "benchmark/BenchmarkMsgPack.h"
 
 #include <sstream>
 #include <stdlib.h>
@@ -119,6 +120,18 @@ int main(int argc, char** argv)
     json mediumMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
     json largeMessageSBEEncodeDecode = benchmarkSBE.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
 
+    capnzero::BenchmarkMsgPack benchmarkMsgPack;
+    json emptyMessageMsgPackResult = benchmarkSBE.messageSizeBenchmark(emptyMessage);
+    json smallMessageMsgPackResult = benchmarkSBE.messageSizeBenchmark(smallMessage);
+    json mediumMessageMsgPackResult = benchmarkSBE.messageSizeBenchmark(mediumMessage);
+    json largeMessageMsgPackResult = benchmarkSBE.messageSizeBenchmark(largeMessage);
+
+    json emptyMessageMsgPackEncodeDecode = benchmarkMsgPack.encodeDecodeBenchmark(emptyMessage, encodeDecodeRuns);
+    json smallMessageMsgPackEncodeDecode = benchmarkMsgPack.encodeDecodeBenchmark(smallMessage, encodeDecodeRuns);
+    json mediumMessageMsgPackEncodeDecode = benchmarkMsgPack.encodeDecodeBenchmark(mediumMessage, encodeDecodeRuns);
+    json largeMessageMsgPackEncodeDecode = benchmarkMsgPack.encodeDecodeBenchmark(largeMessage, encodeDecodeRuns);
+
+
     json fbMessageSize;
     fbMessageSize["empty"] = emptyMessageFlatbuffersResult;
     fbMessageSize["small"] = smallMessageFlatbuffersResult;
@@ -216,6 +229,30 @@ int main(int argc, char** argv)
     sbe["encode_decode"] = sbeEncodeDecode;
     sbe["max_rate"] = sbeMaxRate;
 
+    json msgPackMessageSize;
+    msgPackMessageSize["empty"] = emptyMessageMsgPackResult;
+    msgPackMessageSize["small"] = smallMessageMsgPackResult;
+    msgPackMessageSize["medium"] = mediumMessageMsgPackResult;
+    msgPackMessageSize["large"] = largeMessageMsgPackResult;
+
+    json msgPackEncodeDecode;
+    msgPackEncodeDecode["empty"] = emptyMessageMsgPackEncodeDecode;
+    msgPackEncodeDecode["small"] = smallMessageMsgPackEncodeDecode;
+    msgPackEncodeDecode["medium"] = mediumMessageMsgPackEncodeDecode;
+    msgPackEncodeDecode["large"] = largeMessageMsgPackEncodeDecode;
+
+    json msgPackMaxRate;
+//    ns = 1000;
+//    while (ns >= 1) {
+//        msgPackMaxRate[std::to_string(ns)] = benchmarkMsgPack.maxMessageRateBenchmark(largeMessage, runs, ns);
+//        ns /= 10;
+//    }
+
+    json msgPack;
+    msgPack["message_size"] =msgPackMessageSize;
+    msgPack["encode_decode"] = msgPackEncodeDecode;
+    msgPack["max_rate"] = msgPackMaxRate;
+
     std::cout << "finished benchmark!" << std::endl;
 
     json root;
@@ -223,6 +260,7 @@ int main(int argc, char** argv)
     root["protobuf"] = protobuf;
     root["capnp"] = capnp;
     root["sbe"] = sbe;
+    root["msgpack"] = msgPack;
     file << root.dump();
 
     file.flush();

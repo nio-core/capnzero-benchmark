@@ -39,7 +39,7 @@ public:
      * @param msgBuilder Builder containing the message.
      * @return Number of bytes sent.
      */
-    int send(capnzero::Message message);
+    int send(msgpack::sbuffer &sbuf);
 
     /**
      * Sends the message to the given topic.
@@ -47,7 +47,7 @@ public:
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(capnzero::Message, std::string topic);
+    int send(msgpack::sbuffer &sbuf, std::string topic);
 
     /**
      * Sets the sender high water mark level of the underlying socket of

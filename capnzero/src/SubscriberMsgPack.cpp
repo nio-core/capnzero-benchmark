@@ -118,12 +118,9 @@ namespace capnzero {
 
             msgpack::object_handle oh = msgpack::unpack(static_cast<const char *>(zmq_msg_data(&msg)), zmq_msg_size(&msg));
             msgpack::object obj = oh.get();
-            std::cout << obj << std::endl;
-            std::cout << zmq_msg_data(&msg) << std::endl;
-
-//            capnzero::Message message;
-//            obj.convert(message);
-//            (this->callbackFunction_)(message);
+            capnzero::Message message;
+            obj.convert(message);
+            (this->callbackFunction_)(message);
 
             check(zmq_msg_close(&msg), "zmq_msg_close");
         }

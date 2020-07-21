@@ -67,22 +67,15 @@ void PublisherMsgPack::setSendQueueSize(int queueSize)
     check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
-int PublisherMsgPack::send(capnzero::Message message, std::string topic)
+int PublisherMsgPack::send(msgpack::sbuffer &sbuf, std::string topic)
 {
     assert(topic.length() < MAX_TOPIC_LENGTH && "Publisher::send: The given topic is too long!");
-
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, message);
 
     // setup zmq msg
     zmq_msg_t msg;
     int sumBytesSend = 0;
 
     check(zmq_msg_init_data(&msg, sbuf.data(), sbuf.size(), &cleanUpMsgData, sbuf.data()), "zmq_msg_init_data");
-
-    msgpack::object_handle oh = msgpack::unpack(static_cast<const char *>(zmq_msg_data(&msg)), zmq_msg_size(&msg));
-    msgpack::object obj = oh.get();
-    std::cout << obj << std::endl;
 
     // Topic handling
     if (this->protocol == Protocol::UDP) {
@@ -103,9 +96,9 @@ int PublisherMsgPack::send(capnzero::Message message, std::string topic)
     return sumBytesSend;
 }
 
-int PublisherMsgPack::send(capnzero::Message message)
+int PublisherMsgPack::send(msgpack::sbuffer &sbuf)
 {
-    return this->send(message, this->defaultTopic);
+    return this->send(sbuf, this->defaultTopic);
 }
 
 static void cleanUpMsgData(void* data, void* hint)

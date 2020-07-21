@@ -21,7 +21,10 @@ void callbackMsgPack(capnzero::Message msg)
     std::cout << "Message type: MsgPack" << std::endl;
     std::cout << "id: " << msg.id << std::endl;
     std::cout << "Status: " << msg.status << std::endl;
-//    std::cout << "States: " << msg.states << std::endl;
+    std::cout << "States: " << std::endl;
+    for (auto it = msg.states.begin(); it != msg.states.end(); it++) {
+        std::cout << *it << std::endl;
+    }
     std::cout << "Message Info: " << msg.messageInfo << '\n' << std::endl;
 }
 
@@ -215,6 +218,7 @@ int main(int argc, char** argv)
         std::cerr << "1: Protobuf" << std::endl;
         std::cerr << "2: SBE" << std::endl;
         std::cerr << "3: CapnProto" << std::endl;
+        std::cerr << "4: MsgPack" << std::endl;
         return -1;
     }
 
