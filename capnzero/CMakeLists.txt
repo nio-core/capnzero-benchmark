@@ -119,6 +119,18 @@ target_link_libraries(benchmark
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
+############# MONITOR-CONSOLE-APP
+
+add_executable(monitor
+        src/monitor.cpp
+        )
+
+target_link_libraries(monitor
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        )
+
 ############# BASIC MESSAGES
 
 ## Autogenerate the c++ capnproto files
