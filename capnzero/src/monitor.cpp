@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     }
 
     delete sub;
-    free(monitor_socket);
+    zmq_close(monitor_socket);
     zmq_ctx_term(ctx);
     return 0;
 }
