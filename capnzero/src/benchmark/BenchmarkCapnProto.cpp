@@ -11,7 +11,7 @@ namespace capnzero {
         delete reinterpret_cast<kj::Array <capnp::word> *>(hint);
     }
 
-    void callback(std::string msg)
+    void callback(::capnp::FlatArrayMessageReader& reader)
     {
         endCapnProto = std::chrono::high_resolution_clock::now();
         hasReceivedCapnProto = true;

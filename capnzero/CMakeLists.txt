@@ -31,19 +31,23 @@ message ("PROTO_HDRS = ${PROTO_HDRS}")
 add_subdirectory(flatbuffers)
 add_subdirectory(sbe)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED id_capnzero)
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES capnzero capnzero-base-msgs
-        DEPENDS ZeroMQ CapnProto
+        DEPENDS ZeroMQ CapnProto id_capnzero
         CFG_EXTRAS CapnZero-extras.cmake
 )
+
+set(CAPNPC_IMPORT_DIRS "${id_capnzero_SOURCE_PREFIX}/include")# include external capnp message schema files
 
 include_directories(
         include
         ${ZeroMQ_INCLUDE_DIRS}
         ${CAPNP_INCLUDE_DIRS}
         ${PROTOBUF_INCLUDE_DIRS}
+        ${CAPNPC_IMPORT_DIRS}
+        id_capnzero
 )
 
 ############ CapnZero Communication Library
@@ -131,6 +135,19 @@ target_link_libraries(monitor
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
+############# PROXY-CONSOLE-APP
+
+add_executable(proxy
+        src/proxy.cpp
+        )
+
+target_link_libraries(proxy
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${CAPNPC_IMPORT_DIRS}
+        )
+
 ############# BASIC MESSAGES
 
 ## Autogenerate the c++ capnproto files
@@ -173,4 +190,13 @@ target_include_directories(
         ...
         ${FLATBUFF_INCLUDE_DIR}
         ...)
+
+#add_dependencies( proxy flatbuffers_message generate_sbe_header)
+#get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
+#target_include_directories(
+#        proxy
+#        PRIVATE
+#        ...
+#        ${FLATBUFF_INCLUDE_DIR}
+#        ...)
 

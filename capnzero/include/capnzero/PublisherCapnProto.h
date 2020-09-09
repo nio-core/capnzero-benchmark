@@ -32,8 +32,9 @@ public:
     /**
      * Connects or binds the socket of the publisher to the given address.
      * @param address The address.
+     * @param bind Flag for using zmq_bind or zmq_connect, default to false.
      */
-    void addAddress(std::string address);
+    void addAddress(std::string address, bool bind = false);
 
     /**
      * Sends the message to the default topic.
@@ -49,6 +50,13 @@ public:
      * @return Number of bytes sent.
      */
     int send(capnp::MallocMessageBuilder& msgBuilder, std::string topic);
+
+    /**
+     * Sets the sender high water mark level of the underlying socket of
+     * this publisher.
+     * @param queueSize
+     */
+    void setSendQueueSize(int queueSize);
 
 protected:
     void* context;

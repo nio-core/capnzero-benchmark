@@ -22,7 +22,7 @@ namespace capnzero
 class SubscriberCapnProto
 {
 public:
-    typedef std::function<void(std::string)> callbackFunction;
+    typedef std::function<void(::capnp::FlatArrayMessageReader&)> callbackFunction;
     static const int WORD_SIZE;
 
     SubscriberCapnProto(void* context, Protocol protocol);
@@ -48,14 +48,27 @@ public:
      * Starts the receiving thread, if called for the first time. Changes the callback to the given function.
      * @param callbackFunction
      */
-    void subscribe(void (*callbackFunction)(std::string));
+    void subscribe(void (*callbackFunction)(capnp::FlatArrayMessageReader&));
 
     /**
      * Sets the topic to receive from.
      * @param defaultTopic
      */
     void setTopic(std::string topic);
-    void addAddress(std::string address);
+
+    /**
+     * Connects or binds the socket of the subscriber to the given address.
+     * @param address The address.
+     * * @param bind Flag for using zmq_bind or zmq_connect, default to true.
+     */
+    void addAddress(std::string address, bool bind = true);
+
+    /**
+     * Sets the receiver high water mark level of the underlying socket of
+     * this subscriber.
+     * @param queueSize
+     */
+    void setReceiveQueueSize(int queueSize);
 
 protected:
     void* context;

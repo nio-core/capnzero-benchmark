@@ -10,12 +10,12 @@
 
 void* monitor_socket;
 
-void callbackCapnProto(std::string msg)
+void callbackCapnProto(::capnp::FlatArrayMessageReader& reader)
 {
     std::cout << "Called callback..." << std::endl;
     std::cout << "Message type: CapnProto" << std::endl;
 
-    const char *message = msg.c_str();
+    const char *message = reader.getRoot<capnzero::String>().toString().flatten().cStr();
     zmq_msg_t out_msg;
     zmq_msg_init_size(&out_msg, strlen(message));
     memcpy(zmq_msg_data(&out_msg), message, strlen(message));

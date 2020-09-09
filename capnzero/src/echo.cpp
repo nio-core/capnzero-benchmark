@@ -82,12 +82,11 @@ void callbackSBE(sbe::MessageSBE* msg)
     std::cout << "Message Info: " << messageInfo << '\n' << std::endl;
 }
 
-void callbackCapnProto(std::string msg)
+void callbackCapnProto(::capnp::FlatArrayMessageReader& reader)
 {
     std::cout << "Called callback..." << std::endl;
     std::cout << "Message type: CapnProto" << std::endl;
-
-    std::cout << msg << std::endl;
+    std::cout << reader.getRoot<capnzero::String>().toString().flatten().cStr() << std::endl;
 }
 
 static bool interrupted = false;

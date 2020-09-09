@@ -10,12 +10,14 @@
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
+#include <capnzero/ID.capnp.h>
 
 namespace capnp {
 namespace schemas {
 
 CAPNP_DECLARE_SCHEMA(b061afbaf2401309);
 CAPNP_DECLARE_SCHEMA(8540e769171ac536);
+CAPNP_DECLARE_SCHEMA(a151a10f542ebd39);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -46,6 +48,21 @@ struct String {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(8540e769171ac536, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct AlicaEngineInfo {
+  AlicaEngineInfo() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(a151a10f542ebd39, 0, 7)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -242,6 +259,148 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class AlicaEngineInfo::Reader {
+public:
+  typedef AlicaEngineInfo Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasSenderId() const;
+  inline  ::capnzero::ID::Reader getSenderId() const;
+
+  inline bool hasMasterPlan() const;
+  inline  ::capnp::Text::Reader getMasterPlan() const;
+
+  inline bool hasCurrentPlan() const;
+  inline  ::capnp::Text::Reader getCurrentPlan() const;
+
+  inline bool hasCurrentState() const;
+  inline  ::capnp::Text::Reader getCurrentState() const;
+
+  inline bool hasCurrentRole() const;
+  inline  ::capnp::Text::Reader getCurrentRole() const;
+
+  inline bool hasCurrentTask() const;
+  inline  ::capnp::Text::Reader getCurrentTask() const;
+
+  inline bool hasAgentIdsWithMe() const;
+  inline  ::capnp::List< ::capnzero::ID>::Reader getAgentIdsWithMe() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class AlicaEngineInfo::Builder {
+public:
+  typedef AlicaEngineInfo Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasSenderId();
+  inline  ::capnzero::ID::Builder getSenderId();
+  inline void setSenderId( ::capnzero::ID::Reader value);
+  inline  ::capnzero::ID::Builder initSenderId();
+  inline void adoptSenderId(::capnp::Orphan< ::capnzero::ID>&& value);
+  inline ::capnp::Orphan< ::capnzero::ID> disownSenderId();
+
+  inline bool hasMasterPlan();
+  inline  ::capnp::Text::Builder getMasterPlan();
+  inline void setMasterPlan( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initMasterPlan(unsigned int size);
+  inline void adoptMasterPlan(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownMasterPlan();
+
+  inline bool hasCurrentPlan();
+  inline  ::capnp::Text::Builder getCurrentPlan();
+  inline void setCurrentPlan( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initCurrentPlan(unsigned int size);
+  inline void adoptCurrentPlan(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownCurrentPlan();
+
+  inline bool hasCurrentState();
+  inline  ::capnp::Text::Builder getCurrentState();
+  inline void setCurrentState( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initCurrentState(unsigned int size);
+  inline void adoptCurrentState(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownCurrentState();
+
+  inline bool hasCurrentRole();
+  inline  ::capnp::Text::Builder getCurrentRole();
+  inline void setCurrentRole( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initCurrentRole(unsigned int size);
+  inline void adoptCurrentRole(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownCurrentRole();
+
+  inline bool hasCurrentTask();
+  inline  ::capnp::Text::Builder getCurrentTask();
+  inline void setCurrentTask( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initCurrentTask(unsigned int size);
+  inline void adoptCurrentTask(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownCurrentTask();
+
+  inline bool hasAgentIdsWithMe();
+  inline  ::capnp::List< ::capnzero::ID>::Builder getAgentIdsWithMe();
+  inline void setAgentIdsWithMe( ::capnp::List< ::capnzero::ID>::Reader value);
+  inline  ::capnp::List< ::capnzero::ID>::Builder initAgentIdsWithMe(unsigned int size);
+  inline void adoptAgentIdsWithMe(::capnp::Orphan< ::capnp::List< ::capnzero::ID>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::capnzero::ID>> disownAgentIdsWithMe();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class AlicaEngineInfo::Pipeline {
+public:
+  typedef AlicaEngineInfo Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::capnzero::ID::Pipeline getSenderId();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 // =======================================================================================
 
 inline bool MessageCapnp::Reader::hasId() const {
@@ -396,6 +555,249 @@ inline void String::Builder::adoptString(
 inline ::capnp::Orphan< ::capnp::Text> String::Builder::disownString() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasSenderId() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasSenderId() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnzero::ID::Reader AlicaEngineInfo::Reader::getSenderId() const {
+  return ::capnp::_::PointerHelpers< ::capnzero::ID>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnzero::ID::Builder AlicaEngineInfo::Builder::getSenderId() {
+  return ::capnp::_::PointerHelpers< ::capnzero::ID>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::capnzero::ID::Pipeline AlicaEngineInfo::Pipeline::getSenderId() {
+  return  ::capnzero::ID::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void AlicaEngineInfo::Builder::setSenderId( ::capnzero::ID::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnzero::ID>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnzero::ID::Builder AlicaEngineInfo::Builder::initSenderId() {
+  return ::capnp::_::PointerHelpers< ::capnzero::ID>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::adoptSenderId(
+    ::capnp::Orphan< ::capnzero::ID>&& value) {
+  ::capnp::_::PointerHelpers< ::capnzero::ID>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnzero::ID> AlicaEngineInfo::Builder::disownSenderId() {
+  return ::capnp::_::PointerHelpers< ::capnzero::ID>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasMasterPlan() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasMasterPlan() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader AlicaEngineInfo::Reader::getMasterPlan() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::getMasterPlan() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setMasterPlan( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::initMasterPlan(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptMasterPlan(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> AlicaEngineInfo::Builder::disownMasterPlan() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasCurrentPlan() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasCurrentPlan() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader AlicaEngineInfo::Reader::getCurrentPlan() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::getCurrentPlan() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setCurrentPlan( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::initCurrentPlan(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptCurrentPlan(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> AlicaEngineInfo::Builder::disownCurrentPlan() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasCurrentState() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasCurrentState() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader AlicaEngineInfo::Reader::getCurrentState() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::getCurrentState() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setCurrentState( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::initCurrentState(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptCurrentState(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> AlicaEngineInfo::Builder::disownCurrentState() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasCurrentRole() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasCurrentRole() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader AlicaEngineInfo::Reader::getCurrentRole() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::getCurrentRole() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setCurrentRole( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::initCurrentRole(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptCurrentRole(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> AlicaEngineInfo::Builder::disownCurrentRole() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasCurrentTask() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasCurrentTask() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader AlicaEngineInfo::Reader::getCurrentTask() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::getCurrentTask() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setCurrentTask( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder AlicaEngineInfo::Builder::initCurrentTask(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptCurrentTask(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> AlicaEngineInfo::Builder::disownCurrentTask() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+
+inline bool AlicaEngineInfo::Reader::hasAgentIdsWithMe() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlicaEngineInfo::Builder::hasAgentIdsWithMe() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::capnzero::ID>::Reader AlicaEngineInfo::Reader::getAgentIdsWithMe() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::get(_reader.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::capnzero::ID>::Builder AlicaEngineInfo::Builder::getAgentIdsWithMe() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::get(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
+}
+inline void AlicaEngineInfo::Builder::setAgentIdsWithMe( ::capnp::List< ::capnzero::ID>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::set(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::capnzero::ID>::Builder AlicaEngineInfo::Builder::initAgentIdsWithMe(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::init(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), size);
+}
+inline void AlicaEngineInfo::Builder::adoptAgentIdsWithMe(
+    ::capnp::Orphan< ::capnp::List< ::capnzero::ID>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::capnzero::ID>> AlicaEngineInfo::Builder::disownAgentIdsWithMe() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnzero::ID>>::disown(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
 }
 
 }  // namespace

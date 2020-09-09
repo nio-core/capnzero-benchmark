@@ -37,21 +37,32 @@ namespace capnzero {
         this->defaultTopic = defaultTopic;
     }
 
-    void PublisherCapnProto::addAddress(std::string address) {
+    void PublisherCapnProto::addAddress(std::string address, bool bind) {
+        std::string protocol = "";
         switch (this->protocol) {
             case Protocol::UDP:
-                check(zmq_connect(this->socket, ("udp://" + address).c_str()), "zmq_connect");
+                protocol = "udp://";
                 break;
             case Protocol::TCP:
-                check(zmq_connect(this->socket, ("tcp://" + address).c_str()), "zmq_connect");
+                protocol = "tcp://";
                 break;
             case Protocol::IPC:
-                check(zmq_connect(this->socket, ("ipc://" + address).c_str()), "zmq_connect");
+                protocol = "ipc://";
                 break;
             default:
                 // Unknown protocol!
                 assert(false && "Publisher::Publisher: The given protocol is unknown!");
         }
+
+        if (bind) {
+            check(zmq_bind(this->socket, (protocol + address).c_str()), "zmq_bind");
+        } else {
+            check(zmq_connect(this->socket, (protocol + address).c_str()), "zmq_connect");
+        }
+    }
+
+    void PublisherCapnProto::setSendQueueSize(int queueSize) {
+        check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
     }
 
     int PublisherCapnProto::send(::capnp::MallocMessageBuilder &msgBuilder, std::string topic) {

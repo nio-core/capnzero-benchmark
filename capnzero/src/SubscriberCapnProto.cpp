@@ -67,30 +67,43 @@ void SubscriberCapnProto::setTopic(std::string topic)
     }
 }
 
-void SubscriberCapnProto::addAddress(std::string address)
+void SubscriberCapnProto::addAddress(std::string address, bool bind)
 {
-    switch (protocol) {
-    case Protocol::UDP:
-        check(zmq_bind(this->socket, ("udp://" + address).c_str()), "zmq_bind");
-        break;
-    case Protocol::TCP:
-        check(zmq_bind(this->socket, ("tcp://" + address).c_str()), "zmq_bind");
-        break;
-    case Protocol::IPC:
-        check(zmq_bind(this->socket, ("ipc://" + address).c_str()), "zmq_bind");
-        break;
-    default:
-        // Unknown protocol!
-        assert(false && "Subscriber::addAddress: Given protocol is unknown!");
+    std::string protocol = "";
+    switch (this->protocol) {
+        case Protocol::UDP:
+            protocol = "udp://";
+            break;
+        case Protocol::TCP:
+            protocol = "tcp://";
+            break;
+        case Protocol::IPC:
+            protocol = "ipc://";
+            break;
+        default:
+            // Unknown protocol!
+            assert(false && "Subscriber::addAddress: Given protocol is unknown!");
+    }
+
+    if (bind) {
+        check(zmq_bind(this->socket, (protocol + address).c_str()), "zmq_bind");
+    } else {
+        check(zmq_connect(this->socket, (protocol + address).c_str()), "zmq_connect");
     }
 }
 
-void SubscriberCapnProto::subscribe(void (*callbackFunction)(std::string)) {
+
+void SubscriberCapnProto::subscribe(void (*callbackFunction)(::capnp::FlatArrayMessageReader&)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
         this->runThread = new std::thread(&SubscriberCapnProto::receive, this);
     }
+}
+
+void SubscriberCapnProto::setReceiveQueueSize(int queueSize)
+{
+        check( zmq_setsockopt(this->socket, ZMQ_RCVHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
 }
 
 void SubscriberCapnProto::receive()
@@ -138,8 +151,8 @@ void SubscriberCapnProto::receive()
         int msgSize = zmq_msg_size(&msg);
         auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
         ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
-        std::string message = msgReader.getRoot<capnzero::MessageCapnp>().toString().flatten().cStr();
-        (this->callbackFunction_)(message);
+//        std::string message = msgReader.getRoot<capnzero::MessageCapnp>().toString().flatten().cStr();
+        (this->callbackFunction_)(msgReader);
 
         check(zmq_msg_close(&msg), "zmq_msg_close");
     }

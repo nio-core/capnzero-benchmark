@@ -13,3 +13,15 @@ struct MessageCapnp {
 struct String {
   string @0 :Text;
 }
+
+using IDMsg = import "/capnzero/ID.capnp";
+
+struct AlicaEngineInfo {
+    senderId @0 :IDMsg.ID;
+    masterPlan @1 :Text;
+    currentPlan @2 :Text;
+    currentState @3 :Text;
+    currentRole @4 :Text;
+    currentTask @5 :Text;
+    agentIdsWithMe @6 :List(IDMsg.ID);
+}
