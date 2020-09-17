@@ -10,6 +10,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>id_capnzero</depend>
+  <depend>id_manager</depend>
 
   <export>
   </export>

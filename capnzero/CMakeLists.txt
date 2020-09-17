@@ -31,11 +31,11 @@ message ("PROTO_HDRS = ${PROTO_HDRS}")
 add_subdirectory(flatbuffers)
 add_subdirectory(sbe)
 
-find_package(catkin REQUIRED id_capnzero)
+find_package(catkin REQUIRED id_capnzero id_manager)
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES capnzero capnzero-base-msgs
-        DEPENDS ZeroMQ CapnProto id_capnzero
+        DEPENDS ZeroMQ CapnProto id_capnzero id_manager
         CFG_EXTRAS CapnZero-extras.cmake
 )
 
@@ -47,7 +47,6 @@ include_directories(
         ${CAPNP_INCLUDE_DIRS}
         ${PROTOBUF_INCLUDE_DIRS}
         ${CAPNPC_IMPORT_DIRS}
-        id_capnzero
 )
 
 ############ CapnZero Communication Library
@@ -55,6 +54,7 @@ include_directories(
 add_library(${PROJECT_NAME}
         ${PROTO_SRCS}
         ${PROTO_HDRS}
+        ${CAPNPC_IMPORT_DIRS}
         src/PublisherMsgPack.cpp
         src/SubscriberMsgPack.cpp
         src/PublisherFlatbuffers.cpp
@@ -161,7 +161,11 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS ${capnp_messages})
 
 add_library(capnzero-base-msgs
         ${CAPNP_SRCS}
+        ${CAPNPC_IMPORT_DIRS}
         )
+
+message ("CAPNP_SRCS = ${CAPNP_SRCS}")
+message ("CAPNPC_IMPORT_DIRS = ${CAPNPC_IMPORT_DIRS}")
 
 ## Autogenerate the c++ flatbuffers and SBE files
 add_dependencies( pub flatbuffers_message)# generate_sbe_header

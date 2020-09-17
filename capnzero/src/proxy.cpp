@@ -1,51 +1,27 @@
 #include <capnzero/Common.h>
 
-//import subscriber
 #include <capnzero/SubscriberCapnProto.h>
 #include <capnzero/PublisherCapnProto.h>
+
+#include "capnzero-base-msgs/string.capnp.h"
+#include <capnp/serialize-packed.h>
+#include <zmq.h>
+#include <iostream>
+
+#include <capnp/message.h>
+#include <kj/array.h>
 
 #include <signal.h>
 #include <thread>
 
-//#define DEBUG_SENDER
-
-capnzero::PublisherCapnProto* monitor_socket;
-capnzero::PublisherCapnProto* pub;
+//#define DEBUG_PROXY
 
 void callbackCapnProto(::capnp::FlatArrayMessageReader& reader)
 {
     std::cout << "Called callback..." << std::endl;
     std::cout << "Message type: CapnProto" << std::endl;
-    reader.getRoot<capnzero::AlicaEngineInfo>().toString().flatten().cStr();
-//    const char *message = reader.getRoot<alica_msgs::AlicaEngineInfo>().toString().flatten().cStr();
-//    std::cout << message << std::endl;
-
-//    ::capnp::MallocMessageBuilder msgBuilder;
-//    msgBuilder.setRoot()
-//    capnzero::MessageCapnp::Builder beaconMsgBuilder = msgBuilder.initRoot<capnzero::AlicaEngineInfo>();
-//    beaconMsgBuilder.set
-
-    // init builder
-//    ::capnp::MallocMessageBuilder msgBuilder;
-//    msgBuilder.setRoot()
-//    capnzero::MessageCapnp::Builder beaconMsgBuilder = msgBuilder.initRoot<capnzero::MessageCapnp>();
-//
-//    // set content
-//    beaconMsgBuilder.setMessageInfo(argv[2]);
-//    beaconMsgBuilder.setId("uuid-1234");
-//    beaconMsgBuilder.setStatus(14515141);
-//
-//    auto states = beaconMsgBuilder.initStates(2);
-//    states.set(0, 142471971L);
-//    states.set(1, 89730762L);
-//
-//    const char *message = reader.getRoot<alica_msgs::AlicaEngineInfo>().toString().flatten().cStr();
-//    std::cout << message << std::endl;
-//    zmq_msg_t out_msg;
-//    zmq_msg_init_size(&out_msg, strlen(message));
-//    memcpy(zmq_msg_data(&out_msg), message, strlen(message));
-//    zmq_msg_send(&out_msg, monitor_socket, ZMQ_DONTWAIT);
-//    zmq_msg_close(&out_msg);
+    const char *message = reader.getRoot<capnzero::AlicaEngineInfo>().toString().flatten().cStr();
+    std::cout << message << std::endl;
 }
 
 static bool interrupted = false;
@@ -66,11 +42,6 @@ static void s_catch_signals(void)
 
 int main(int argc, char** argv)
 {
-    s_catch_signals();
-    for (size_t i = 0; i < argc; i++) {
-        std::cout << "Param " << i << ": '" << argv[i] << "'" << std::endl;
-    }
-
     void *ctx = zmq_init(1);
     auto sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::UDP);
     sub->setTopic("/AE/AEInfo");
@@ -86,7 +57,6 @@ int main(int argc, char** argv)
     }
 
     delete sub;
-//    zmq_close(monitor_socket);
     zmq_ctx_term(ctx);
     return 0;
 }

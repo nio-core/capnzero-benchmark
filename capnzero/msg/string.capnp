@@ -14,14 +14,22 @@ struct String {
   string @0 :Text;
 }
 
-using IDMsg = import "/capnzero/ID.capnp";
+struct ID {
+    value @0 :Data;
+    type @1 :UInt8;
+
+    const wildcard :UInt8 = 0;
+    const uuid :UInt8 = 1;
+}
+
+#using IDMsg = import "/capnzero/ID.capnp";
 
 struct AlicaEngineInfo {
-    senderId @0 :IDMsg.ID;
+    senderId @0 :ID;
     masterPlan @1 :Text;
     currentPlan @2 :Text;
     currentState @3 :Text;
     currentRole @4 :Text;
     currentTask @5 :Text;
-    agentIdsWithMe @6 :List(IDMsg.ID);
+    agentIdsWithMe @6 :List(ID);
 }
