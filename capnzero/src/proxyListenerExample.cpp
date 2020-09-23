@@ -29,8 +29,6 @@ void callbackCapnProto(zmq_msg_t &msg)
     ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
     std::string message = msgReader.getRoot<capnzero::AlicaEngineInfo>().toString().flatten().cStr();
     std::cout << message << std::endl;
-
-    pub->send(msg);
     zmq_msg_close(&msg);
 }
 
@@ -53,14 +51,10 @@ static void s_catch_signals(void)
 int main(int argc, char** argv)
 {
     void *ctx = zmq_init(1);
-    auto sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::UDP);
+    auto sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::TCP);
     sub->setTopic("/AE/AEInfo");
-    sub->addAddress("224.0.0.2:5555");
+    sub->addAddress("127.0.0.1:12345", false);
     sub->subscribe(&callbackCapnProto);
-
-    pub = new capnzero::PublisherCapnProto(ctx, capnzero::Protocol::TCP);
-    pub->setDefaultTopic("/AE/AEInfo");
-    pub->addAddress("*:12345", true);
 
     while (!interrupted) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));

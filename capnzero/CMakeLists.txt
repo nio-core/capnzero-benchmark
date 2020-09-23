@@ -148,6 +148,19 @@ target_link_libraries(proxy
         ${CAPNPC_IMPORT_DIRS}
         )
 
+############# PROXY_LISTENER_EXAMPLE-CONSOLE-APP
+
+add_executable(proxyListenerExample
+        src/proxyListenerExample.cpp
+        )
+
+target_link_libraries(proxyListenerExample
+        ${PROJECT_NAME}
+        capnzero-base-msgs
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${CAPNPC_IMPORT_DIRS}
+        )
+
 ############# BASIC MESSAGES
 
 ## Autogenerate the c++ capnproto files

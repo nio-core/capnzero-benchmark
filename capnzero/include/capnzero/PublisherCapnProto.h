@@ -41,7 +41,7 @@ public:
      * @param msgBuilder Builder containing the message.
      * @return Number of bytes sent.
      */
-    int send(capnp::MallocMessageBuilder& msgBuilder);
+    int send(zmq_msg_t &msg);
 
     /**
      * Sends the message to the given topic.
@@ -49,7 +49,7 @@ public:
      * @param topic The topic to send the message to.
      * @return Number of bytes sent.
      */
-    int send(capnp::MallocMessageBuilder& msgBuilder, std::string topic);
+    int send(zmq_msg_t &msg, std::string topic);
 
     /**
      * Sets the sender high water mark level of the underlying socket of

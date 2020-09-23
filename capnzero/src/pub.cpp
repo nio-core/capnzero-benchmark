@@ -24,6 +24,10 @@
 
 static bool interrupted = false;
 
+static void cleanUpMsgData(void *data, void *hint) {
+    delete reinterpret_cast<kj::Array <capnp::word> *>(hint);
+}
+
 static void s_signal_handler(int signal_value) {
     interrupted = true;
 }
@@ -192,7 +196,15 @@ int main(int argc, char **argv) {
         pub.addAddress("224.0.0.2:5555");
 
         while (!interrupted) {
-            int numBytesSent = pub.send(msgBuilder);
+            //pack msg into zmq_msg_t
+            zmq_msg_t msg;
+            kj::Array <capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
+            kj::Array <capnp::word> *wordArrayPtr = new kj::Array<capnp::word>(
+                    kj::mv(wordArray)); // will be delete by zero-mq
+            capnzero::check(zmq_msg_init_data(&msg, wordArrayPtr->begin(), wordArrayPtr->size() * sizeof(capnp::word),
+                                              &cleanUpMsgData, wordArrayPtr), "zmq_msg_init_data");
+
+            int numBytesSent = pub.send(msg);
 #ifdef DEBUG_PUB
             std::cout << "pub: " << numBytesSent << " Bytes sent!" << std::endl;
 #endif

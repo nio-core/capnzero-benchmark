@@ -65,18 +65,9 @@ namespace capnzero {
         check( zmq_setsockopt(this->socket, ZMQ_SNDHWM, &queueSize, sizeof(queueSize)), "zmq_setsockopt");
     }
 
-    int PublisherCapnProto::send(::capnp::MallocMessageBuilder &msgBuilder, std::string topic) {
+    int PublisherCapnProto::send(zmq_msg_t &msg, std::string topic) {
         assert(topic.length() < MAX_TOPIC_LENGTH && "Publisher::send: The given topic is too long!");
-
-        // setup zmq msg
-        zmq_msg_t msg;
         int sumBytesSend = 0;
-
-        kj::Array <capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
-        kj::Array <capnp::word> *wordArrayPtr = new kj::Array<capnp::word>(
-                kj::mv(wordArray)); // will be delete by zero-mq
-        check(zmq_msg_init_data(&msg, wordArrayPtr->begin(), wordArrayPtr->size() * sizeof(capnp::word),
-                                &cleanUpMsgData, wordArrayPtr), "zmq_msg_init_data");
 
         // Topic handling
         if (this->protocol == Protocol::UDP) {
@@ -95,11 +86,12 @@ namespace capnzero {
         }
 
         sumBytesSend += checkSend(zmq_msg_send(&msg, this->socket, 0), msg, "Publisher-content");
+        std::cout << "send: " << topic << std::endl;
         return sumBytesSend;
     }
 
-    int PublisherCapnProto::send(::capnp::MallocMessageBuilder &msgBuilder) {
-        return this->send(msgBuilder, this->defaultTopic);
+    int PublisherCapnProto::send(zmq_msg_t &msg) {
+        return this->send(msg, this->defaultTopic);
     }
 
     static void cleanUpMsgData(void *data, void *hint) {

@@ -93,7 +93,7 @@ void SubscriberCapnProto::addAddress(std::string address, bool bind)
 }
 
 
-void SubscriberCapnProto::subscribe(void (*callbackFunction)(::capnp::FlatArrayMessageReader&)) {
+void SubscriberCapnProto::subscribe(void (*callbackFunction)(zmq_msg_t&)) {
     this->callbackFunction_ = callbackFunction;
     if (!running) {
         this->running = true;
@@ -147,14 +147,10 @@ void SubscriberCapnProto::receive()
         // Check whether message is memory aligned
 //        assert(reinterpret_cast<uintptr_t>(zmq_msg_data(&msg)) % Subscriber::WORD_SIZE == 0);
 
-        // Call the callback with Cap'n Proto message
-        int msgSize = zmq_msg_size(&msg);
-        auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
-        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
-//        std::string message = msgReader.getRoot<capnzero::MessageCapnp>().toString().flatten().cStr();
-        (this->callbackFunction_)(msgReader);
+//        // Call the callback with Cap'n Proto message
+        (this->callbackFunction_)(msg);
 
-        check(zmq_msg_close(&msg), "zmq_msg_close");
+//        check(zmq_msg_close(&msg), "zmq_msg_close");
     }
 }
 

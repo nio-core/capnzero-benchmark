@@ -11,8 +11,13 @@ namespace capnzero {
         delete reinterpret_cast<kj::Array <capnp::word> *>(hint);
     }
 
-    void callback(::capnp::FlatArrayMessageReader& reader)
-    {
+    void callback(zmq_msg_t &msg) {
+        //decode message
+        int msgSize = zmq_msg_size(&msg);
+        auto wordArray = kj::ArrayPtr < capnp::word const>(reinterpret_cast<capnp::word const *>(zmq_msg_data(
+                &msg)), msgSize);
+        ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
+
         endCapnProto = std::chrono::high_resolution_clock::now();
         hasReceivedCapnProto = true;
         messagesReceivedCapnProto++;
@@ -26,9 +31,9 @@ namespace capnzero {
         return pub;
     }
 
-    SubscriberCapnProto* createSubscriberCapnProto() {
-        void* ctx = zmq_ctx_new();
-        capnzero::SubscriberCapnProto* sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::UDP);
+    SubscriberCapnProto *createSubscriberCapnProto() {
+        void *ctx = zmq_ctx_new();
+        capnzero::SubscriberCapnProto *sub = new capnzero::SubscriberCapnProto(ctx, capnzero::Protocol::UDP);
 
         sub->setTopic("benchmark");
         sub->addAddress("224.0.0.2:5555");
@@ -47,7 +52,7 @@ namespace capnzero {
 
         PublisherCapnProto pub = createPublisherCapnProto();
 
-        SubscriberCapnProto* sub = createSubscriberCapnProto();
+        SubscriberCapnProto *sub = createSubscriberCapnProto();
 
         //running
         std::cout << "running capnproto benchmark with size " << message.size() << std::endl;
@@ -70,7 +75,14 @@ namespace capnzero {
             states.set(0, 142471971L);
             states.set(1, 89730762L);
 
-            messageSizeInBytes = pub.send(msgBuilder);
+            //pack msg into zmq_msg_t
+            zmq_msg_t msg;
+            kj::Array <capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
+            kj::Array <capnp::word> *wordArrayPtr = new kj::Array<capnp::word>(
+                    kj::mv(wordArray)); // will be delete by zero-mq
+            check(zmq_msg_init_data(&msg, wordArrayPtr->begin(), wordArrayPtr->size() * sizeof(capnp::word),
+                                    &cleanUpMsgData, wordArrayPtr), "zmq_msg_init_data");
+            messageSizeInBytes = pub.send(msg);
 
             std::this_thread::sleep_for(std::chrono::seconds(1));
         } while (!hasReceivedCapnProto);
@@ -79,7 +91,7 @@ namespace capnzero {
         std::cout << "time: " << time << "us" << std::endl;
         std::cout << "retries: " << retries << std::endl;
 
-        std::cout << "Message size: " << messageSizeInBytes << " bytes\n" <<  std::endl;
+        std::cout << "Message size: " << messageSizeInBytes << " bytes\n" << std::endl;
         delete sub;
 
         json result;
@@ -95,9 +107,10 @@ namespace capnzero {
         int messageSize = 0;
         int messagesSend = 0;
 
-        std::cout << "max message rate capnproto benchmark with " << nsBetweenMessages << "ns and " << runs << " runs" << std::endl;
+        std::cout << "max message rate capnproto benchmark with " << nsBetweenMessages << "ns and " << runs << " runs"
+                  << std::endl;
         PublisherCapnProto pub = createPublisherCapnProto();
-        SubscriberCapnProto* sub = createSubscriberCapnProto();
+        SubscriberCapnProto *sub = createSubscriberCapnProto();
 
         messagesReceivedCapnProto = 0;
         while (runs > messagesSend) {
@@ -114,7 +127,15 @@ namespace capnzero {
             states.set(0, 142471971L);
             states.set(1, 89730762L);
 
-            messageSize = pub.send(msgBuilder);
+            //pack msg into zmq_msg_t
+            zmq_msg_t msg;
+            kj::Array <capnp::word> wordArray = capnp::messageToFlatArray(msgBuilder);
+            kj::Array <capnp::word> *wordArrayPtr = new kj::Array<capnp::word>(
+                    kj::mv(wordArray)); // will be delete by zero-mq
+            check(zmq_msg_init_data(&msg, wordArrayPtr->begin(), wordArrayPtr->size() * sizeof(capnp::word),
+                                    &cleanUpMsgData, wordArrayPtr), "zmq_msg_init_data");
+
+            messageSize = pub.send(msg);
             messagesSend++;
             std::this_thread::sleep_for(std::chrono::nanoseconds(nsBetweenMessages));
         }
@@ -134,7 +155,8 @@ namespace capnzero {
     }
 
     json BenchmarkCapnProto::encodeDecodeBenchmark(std::string message, int runs) {
-        std::cout << "encode decode benchmark capnp with " << runs << " encodes / decodes and size " << message.size()  << std::endl;
+        std::cout << "encode decode benchmark capnp with " << runs << " encodes / decodes and size " << message.size()
+                  << std::endl;
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -193,7 +215,8 @@ namespace capnzero {
              * Decode message
              */
             int msgSize = zmq_msg_size(&msg);
-            auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
+            auto wordArray = kj::ArrayPtr < capnp::word const>(reinterpret_cast<capnp::word const *>(zmq_msg_data(
+                    &msg)), msgSize);
             ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
             std::string message = msgReader.getRoot<capnzero::MessageCapnp>().toString().flatten().cStr();
         }

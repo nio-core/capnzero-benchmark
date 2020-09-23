@@ -67,7 +67,6 @@ void callbackProtobuf(capnzero::MessageProtobuf* msg)
 
 void callbackSBE(sbe::MessageSBE* msg)
 {
-//    msg.wrapAndApplyHeader(data, 0, bufferLength);
     char id = msg->id();
     long int status = msg->status();
     sbe::MessageSBE::States states = msg->states();
@@ -82,11 +81,15 @@ void callbackSBE(sbe::MessageSBE* msg)
     std::cout << "Message Info: " << messageInfo << '\n' << std::endl;
 }
 
-void callbackCapnProto(::capnp::FlatArrayMessageReader& reader)
+void callbackCapnProto(zmq_msg_t &msg)
 {
     std::cout << "Called callback..." << std::endl;
     std::cout << "Message type: CapnProto" << std::endl;
-    std::cout << reader.getRoot<capnzero::String>().toString().flatten().cStr() << std::endl;
+    int msgSize = zmq_msg_size(&msg);
+    auto wordArray = kj::ArrayPtr<capnp::word const>(reinterpret_cast<capnp::word const*>(zmq_msg_data(&msg)), msgSize);
+    ::capnp::FlatArrayMessageReader msgReader = ::capnp::FlatArrayMessageReader(wordArray);
+    std::cout << msgReader.getRoot<capnzero::String>().toString().flatten().cStr() << std::endl;
+    zmq_msg_close(&msg);
 }
 
 static bool interrupted = false;
