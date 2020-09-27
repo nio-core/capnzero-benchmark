@@ -104,18 +104,6 @@ target_link_libraries(echo
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
-############# MONITOR-CONSOLE-APP
-
-add_executable(monitor
-        src/monitor.cpp
-        )
-
-target_link_libraries(monitor
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        )
-
 ############# PROXY-CONSOLE-APP
 
 add_executable(proxy
