@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package capnzero;
+
+message MessageProtobuf{
+    required string id = 1;
+    required int64 status = 2;
+    required string messageInfo = 3;
+    repeated int64 states = 4;
+}

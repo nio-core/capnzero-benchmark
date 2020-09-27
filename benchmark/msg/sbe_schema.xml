@@ -1,0 +1,39 @@
+
+<messageSchema package="sbe"
+               id="0"
+               version="0"
+               semanticVersion="5.2"
+               description="SBE encoding schema for capnzero"
+               byteOrder="littleEndian">
+
+    <types>
+            <composite name="messageHeader" description="Message identifiers and length of message root">
+                <type name="blockLength" primitiveType="uint16"/>
+                <type name="templateId" primitiveType="uint16"/>
+                <type name="schemaId" primitiveType="uint16"/>
+                <type name="version" primitiveType="uint16"/>
+            </composite>
+
+            <composite name="varStringEncoding" description="Variable length UTF-8 String.">
+                <type name="length" primitiveType="uint16"/>
+                <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+            </composite>
+
+            <composite name="groupSizeEncoding" description="Repeating group dimensions" >
+                <type name="blockLength" primitiveType="uint16"/>
+                <type name="numInGroup" primitiveType="uint16" semanticType="NumInGroup"/>
+            </composite>
+
+            <message name="MessageSBE"
+                     id="1"
+                     description="messages send by pub">
+                <field name="id" id="2" type="char" length="36"/>
+                <field name="status" id="3" type="int64"/>
+                <group name="states" id="4" dimensionType="groupSizeEncoding">
+                    <field name="state" id="5" type="int64"/>
+                </group>
+                <data name="messageInfo" id="6" type="varStringEncoding"/>
+            </message>
+    </types>
+
+</messageSchema>

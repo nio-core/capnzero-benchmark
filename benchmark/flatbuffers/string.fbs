@@ -1,0 +1,10 @@
+namespace capnzero;
+
+table MessageFlatbuffers {
+	id:string;
+	status:long;
+	states:[long];
+	messageInfo:string;
+}
+
+root_type MessageFlatbuffers;

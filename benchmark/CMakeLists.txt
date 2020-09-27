@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(capnzero)
+project(zeromq_encoding_benchmark)
 
 ## Use c++ 11x std
 add_definitions(-std=c++11)
@@ -12,6 +12,7 @@ find_package(ZeroMQ REQUIRED)
 find_package(CapnProto REQUIRED)
 find_package(FlatBuffers REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(capnzero REQUIRED)
 
 # copying the variables makes it compatible for catkin to transitive forward the CapnProto libraries and include dirs
 set(CapnProto_LIBRARIES ${CAPNP_LIBRARIES})
@@ -31,11 +32,11 @@ message ("PROTO_HDRS = ${PROTO_HDRS}")
 add_subdirectory(flatbuffers)
 add_subdirectory(sbe)
 
-find_package(catkin REQUIRED id_capnzero id_manager)
+find_package(catkin REQUIRED capnzero)
 catkin_package(
-        INCLUDE_DIRS include
+        INCLUDE_DIRS include ${catkin_INCLUDE_DIRS}
         LIBRARIES capnzero capnzero-base-msgs
-        DEPENDS ZeroMQ CapnProto id_capnzero id_manager
+        DEPENDS ZeroMQ CapnProto capnzero
         CFG_EXTRAS CapnZero-extras.cmake
 )
 
@@ -47,6 +48,7 @@ include_directories(
         ${CAPNP_INCLUDE_DIRS}
         ${PROTOBUF_INCLUDE_DIRS}
         ${CAPNPC_IMPORT_DIRS}
+        ${catkin_INCLUDE_DIRS}
 )
 
 ############ CapnZero Communication Library
@@ -55,16 +57,11 @@ add_library(${PROJECT_NAME}
         ${PROTO_SRCS}
         ${PROTO_HDRS}
         ${CAPNPC_IMPORT_DIRS}
-        src/PublisherMsgPack.cpp
-        src/SubscriberMsgPack.cpp
-        src/PublisherFlatbuffers.cpp
-        src/SubscriberFlatbuffers.cpp
-        src/PublisherProtobuf.cpp
-        src/SubscriberProtobuf.cpp
-        src/PublisherSBE.cpp
-        src/SubscriberSBE.cpp
-        src/PublisherCapnProto.cpp
-        src/SubscriberCapnProto.cpp
+        src/benchmark/BenchmarkFlatbuffers.cpp
+        src/benchmark/BenchmarkCapnProto.cpp
+        src/benchmark/BenchmarkProtobuf.cpp
+        src/benchmark/BenchmarkSBE.cpp
+        src/benchmark/BenchmarkMsgPack.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ZMQ_BUILD_DRAFT_API=1)
@@ -76,70 +73,19 @@ target_link_libraries(${PROJECT_NAME}
         ${PROTOBUF_LIBRARIES}
         )
 
-############# SENDER-CONSOLE-APP
+############# BENCHMARK-CONSOLE-APP
 
-add_executable(pub
-        src/pub.cpp
+add_executable(benchmark
+        src/benchmark/benchmark.cpp
         ${PROTO_SRCS}
         ${PROTO_HDRS}
         )
 
-target_link_libraries(pub
+target_link_libraries(benchmark
         ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
         capnzero-base-msgs
         ${CMAKE_THREAD_LIBS_INIT}
-        )
-
-############# RECEIVER-CONSOLE-APP
-
-add_executable(echo
-        src/echo.cpp
-        ${PROTO_SRCS}
-        ${PROTO_HDRS}
-        )
-
-target_link_libraries(echo
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        )
-
-############# MONITOR-CONSOLE-APP
-
-add_executable(monitor
-        src/monitor.cpp
-        )
-
-target_link_libraries(monitor
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        )
-
-############# PROXY-CONSOLE-APP
-
-add_executable(proxy
-        src/proxy.cpp
-        )
-
-target_link_libraries(proxy
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${CAPNPC_IMPORT_DIRS}
-        )
-
-############# PROXY_LISTENER_EXAMPLE-CONSOLE-APP
-
-add_executable(proxyListenerExample
-        src/proxyListenerExample.cpp
-        )
-
-target_link_libraries(proxyListenerExample
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${CAPNPC_IMPORT_DIRS}
         )
 
 ############# BASIC MESSAGES
@@ -162,19 +108,10 @@ message ("CAPNP_SRCS = ${CAPNP_SRCS}")
 message ("CAPNPC_IMPORT_DIRS = ${CAPNPC_IMPORT_DIRS}")
 
 ## Autogenerate the c++ flatbuffers and SBE files
-add_dependencies( pub flatbuffers_message)# generate_sbe_header
+add_dependencies( benchmark flatbuffers_message generate_sbe_header)
 get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
 target_include_directories(
-        pub
-        PRIVATE
-        ...
-        ${FLATBUFF_INCLUDE_DIR}
-        ...)
-
-add_dependencies( echo flatbuffers_message)# generate_sbe_header
-get_target_property( FLATBUFF_INCLUDE_DIR flatbuffers_message INCLUDE_DIR )
-target_include_directories(
-        echo
+        benchmark
         PRIVATE
         ...
         ${FLATBUFF_INCLUDE_DIR}
