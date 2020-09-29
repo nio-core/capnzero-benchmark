@@ -40,8 +40,6 @@ catkin_package(
         CFG_EXTRAS CapnZero-extras.cmake
 )
 
-set(CAPNPC_IMPORT_DIRS "${id_capnzero_SOURCE_PREFIX}/include")# include external capnp message schema files
-
 include_directories(
         include
         ${ZeroMQ_INCLUDE_DIRS}

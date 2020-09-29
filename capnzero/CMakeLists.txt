@@ -31,15 +31,15 @@ message ("PROTO_HDRS = ${PROTO_HDRS}")
 add_subdirectory(flatbuffers)
 add_subdirectory(sbe)
 
-find_package(catkin REQUIRED id_capnzero id_manager)
+find_package(catkin REQUIRED)
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES capnzero capnzero-base-msgs
-        DEPENDS ZeroMQ CapnProto id_capnzero id_manager
+        DEPENDS ZeroMQ CapnProto
         CFG_EXTRAS CapnZero-extras.cmake
 )
 
-set(CAPNPC_IMPORT_DIRS "${id_capnzero_SOURCE_PREFIX}/include")# include external capnp message schema files
+#set(CAPNPC_IMPORT_DIRS "${id_capnzero_SOURCE_PREFIX}/include")# include external capnp message schema files
 
 include_directories(
         include
@@ -102,32 +102,6 @@ target_link_libraries(echo
         ${PROJECT_NAME}
         capnzero-base-msgs
         ${CMAKE_THREAD_LIBS_INIT}
-        )
-
-############# PROXY-CONSOLE-APP
-
-add_executable(proxy
-        src/proxy.cpp
-        )
-
-target_link_libraries(proxy
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${CAPNPC_IMPORT_DIRS}
-        )
-
-############# PROXY_LISTENER_EXAMPLE-CONSOLE-APP
-
-add_executable(proxyListenerExample
-        src/proxyListenerExample.cpp
-        )
-
-target_link_libraries(proxyListenerExample
-        ${PROJECT_NAME}
-        capnzero-base-msgs
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${CAPNPC_IMPORT_DIRS}
         )
 
 ############# BASIC MESSAGES

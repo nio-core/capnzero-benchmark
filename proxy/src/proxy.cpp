@@ -67,6 +67,7 @@ int main(int argc, char** argv)
     }
 
     delete sub;
+    delete pub;
     zmq_ctx_term(ctx);
     return 0;
 }
